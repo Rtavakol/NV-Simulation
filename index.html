@@ -611,6 +611,12 @@ $('csv').onclick=()=>{render();const span=view[1]-view[0],N=Math.min(250000,Math
  for(const f of [...grid].sort((a,b)=>a-b)){const ch=spectrumChannels(f),total=100-ch.reduce((sum,y)=>sum+100-y,0);data.push([f,total,...ch].join(','))}downloadCsv(data,'NV_PL')};
 $('transCsv').onclick=()=>{render();const data=[...metadata(),'NV,enabled,eigenstate_i,eigenstate_j,frequency_MHz,MW_strength,brightness_difference_squared,PL_weight'];lines.forEach((l,k)=>l.transitions.forEach(t=>data.push([k+1,enabled[k],t.i+1,t.j+1,t.f,t.strength,t.brightnessContrast,t.weight].join(','))));downloadCsv(data,'NV_Transitions')};
 $('welcomeDemo').onclick=()=>{if(TS.running){stopSeries();return}$('seriesDemo').click();startSeries()};
+window.MagLabStudio={
+ getSpectrum(){render();const a=view[0],b=view[1],n=1800;return {min:a,max:b,channels:Array.from({length:5},(_,k)=>Array.from({length:n},(_,i)=>{const f=a+(b-a)*i/(n-1);return k===0?spectrum(f):spectrum(f,k-1)}))}},
+ getCamera(){return {...camera}},
+ setCamera(yaw,pitch,zoom){camera.yaw=Number(yaw)||0;camera.pitch=Math.max(-180,Math.min(180,Number(pitch)||0));camera.zoom=Math.max(.3,Math.min(3,Number(zoom)||1));request()},
+ redraw(){request()}
+};
 window.addEventListener('resize',request);render();
 // Start once after the first paint; completed traces remain available to explore.
 requestAnimationFrame(()=>{$('seriesDemo').click();startSeries()});
