@@ -34,6 +34,8 @@
 <p class="hint">You can also drag the 3D figure in the simulator below. Refresh the preview after dragging.</p>
 <h2 style="margin-top:18px">Multi-view PDF export</h2>
 <label for="pdfViews">Views to include</label><select id="pdfViews"><option value="six">XY, XZ, YZ · positive normals (6 views)</option><option value="twelve" selected>XY, XZ, YZ · both sides (12 views)</option></select>
+<label for="pdfResolution">PDF image resolution</label><select id="pdfResolution"><option value="150">150 DPI · draft / smaller file</option><option value="300" selected>300 DPI · publication standard</option><option value="600">600 DPI · high resolution</option></select>
+<p class="hint">Sets the raster image resolution for each A4 PDF page. Higher DPI produces larger files; the underlying 3D simulator canvas remains raster-based.</p>
 <button id="allPlanesPdf" style="margin-top:10px">Save all lab & diamond planes as PDF</button>
 <p class="hint">Creates one PDF, grouped by reference frame, with labeled views. The current crystal orientation and field settings are preserved.</p></div>
 <label>Accent / annotation color</label><div class="swatches"><input id="accent" type="color" value="#1264a3" aria-label="Annotation color"><input id="ink" type="color" value="#16212d" aria-label="Text color"></div>
@@ -135,13 +137,13 @@ async function exportPlanesPdf(){
  if(!api){$('status').textContent='Simulator is still loading. Try again in a moment.';return}
  const previous={kind:$('kind').value,frame:$('frameRef').value,plane:$('plane').value,yaw:$('yaw').value,pitch:$('pitch').value,zoom:$('zoom').value};
  const views=$('pdfViews').value==='twelve'?['xy+','xy-','xz+','xz-','yz+','yz-']:['xy+','xz+','yz+'];
- const src=$('source').contentDocument.getElementById('field'),pages=[];
+ const src=$('source').contentDocument.getElementById('field'),pages=[],dpi=+$('pdfResolution').value,scaleFactor=dpi/150;
  button.disabled=true;button.textContent='Generating PDF…';
  try{
   $('kind').value='field';
   for(const frame of ['lab','diamond']){
-   const page=document.createElement('canvas');page.width=1240;page.height=1754;
-   const c=page.getContext('2d');c.fillStyle='#ffffff';c.fillRect(0,0,page.width,page.height);
+   const page=document.createElement('canvas');page.width=Math.round(1240*scaleFactor);page.height=Math.round(1754*scaleFactor);
+   const c=page.getContext('2d');c.scale(scaleFactor,scaleFactor);c.fillStyle='#ffffff';c.fillRect(0,0,1240,1754);
    c.fillStyle='#142538';c.font='bold 35px Arial';c.fillText(frame==='lab'?'Laboratory coordinate frame':'Diamond crystal coordinate frame',70,90);
    c.font='20px Arial';c.fillText('MagLab NV Simulation — coordinate-plane views',70,130);
    for(let i=0;i<views.length;i++){
@@ -163,8 +165,8 @@ async function exportPlanesPdf(){
    c.fillStyle='#51677a';c.font='18px Arial';c.fillText('Views use the current diamond orientation, magnetic field and simulation parameters.',70,1695);
    pages.push(page);
   }
-  save(makePdf(pages),'MagLab_lab_and_diamond_plane_views.pdf');
-  $('status').textContent='PDF generated: '+(views.length*2)+' views across 2 pages.';
+  save(makePdf(pages),'MagLab_lab_and_diamond_plane_views_'+dpi+'DPI.pdf');
+  $('status').textContent='PDF generated: '+(views.length*2)+' views across 2 pages at '+dpi+' DPI.';
  }catch(e){$('status').textContent='PDF export failed: '+e.message}
  finally{
   $('frameRef').value=previous.frame;$('plane').value=previous.plane;
