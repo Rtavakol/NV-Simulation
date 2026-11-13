@@ -26,7 +26,7 @@
 <label for="yaw">Rotate horizontally (yaw, °)</label><input id="yaw" type="range" min="-180" max="180" step="1" value="0">
 <label for="pitch">Rotate vertically (pitch, °)</label><input id="pitch" type="range" min="-180" max="180" step="1" value="0">
 <label for="zoom">Zoom</label><input id="zoom" type="range" min=".3" max="3" step=".05" value="1">
-<div class="actions"><button id="front">Front view</button><button id="top">Top view</button><button id="iso">Isometric view</button></div>
+<div class="actions"><button id="front">Front (+Y)</button><button id="back">Back (−Y)</button><button id="left">Left (−X)</button><button id="right">Right (+X)</button><button id="top">Top (+Z)</button><button id="bottom">Bottom (−Z)</button><button id="iso">Isometric</button></div>
 <p class="hint">You can also drag the 3D figure in the simulator below. Refresh the preview after dragging.</p></div>
 <label>Accent / annotation color</label><div class="swatches"><input id="accent" type="color" value="#1264a3" aria-label="Annotation color"><input id="ink" type="color" value="#16212d" aria-label="Text color"></div>
 <label><input type="checkbox" id="border" checked> Add thin figure border</label>
@@ -71,7 +71,7 @@ $('source').addEventListener('load',()=>setTimeout(()=>{getSource();draw()},1800
 $('curve').onchange=()=>{$('curveColor').value=colors[+$('curve').value];draw()};$('curveColor').oninput=()=>{colors[+$('curve').value]=$('curveColor').value;draw()};
 for(const el of document.querySelectorAll('input,select'))if(!['kind','preset','curve','curveColor','yaw','pitch','zoom'].includes(el.id))el.addEventListener('input',draw);
 for(const id of ['yaw','pitch','zoom'])$(id).addEventListener('input',camera);
-for(const [id,y,p,z] of [['front',0,0,1],['top',0,90,1],['iso',35,25,1]])$(id).onclick=()=>{$('yaw').value=y;$('pitch').value=p;$('zoom').value=z;camera()};
+for(const [id,y,p,z] of [['front',0,0,1],['back',180,0,1],['left',-90,0,1],['right',90,0,1],['top',0,90,1],['bottom',0,-90,1],['iso',35,25,1]])$(id).onclick=()=>{$('yaw').value=y;$('pitch').value=p;$('zoom').value=z;camera()};
 $('png').onclick=()=>{draw();canvas.toBlob(b=>save(b,'MagLab_figure.png'),'image/png')};
 $('svg').onclick=()=>{draw();save(new Blob([svgExport()],{type:'image/svg+xml'}),'MagLab_figure.svg')};
 mode();
