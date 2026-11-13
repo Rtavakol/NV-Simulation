@@ -23,6 +23,10 @@
 <label for="ylabel">Y-axis label</label><input id="ylabel" type="text" value="Photoluminescence (%)">
 </div>
 <div id="cameraOptions" hidden><h2 style="margin-top:18px">3D viewing angle</h2>
+<label for="frameRef">Reference frame</label><select id="frameRef"><option value="lab">Laboratory frame (x, y, z)</option><option value="diamond">Diamond crystal frame (x′, y′, z′)</option></select>
+<label for="plane">View along a coordinate plane</label><select id="plane"><option value="">Choose a plane…</option><option value="xy+">XY · from +Z</option><option value="xy-">XY · from −Z</option><option value="xz+">XZ · from +Y</option><option value="xz-">XZ · from −Y</option><option value="yz+">YZ · from +X</option><option value="yz-">YZ · from −X</option></select>
+<button id="applyPlane" style="margin-top:8px">Align camera to plane</button>
+<p class="hint">The laboratory and diamond coordinate planes are different when the crystal is rotated. The diamond-frame views follow the selected crystal orientation and its yaw, pitch, and roll settings.</p>
 <label for="yaw">Rotate horizontally (yaw, °)</label><input id="yaw" type="range" min="-180" max="180" step="1" value="0">
 <label for="pitch">Rotate vertically (pitch, °)</label><input id="pitch" type="range" min="-180" max="180" step="1" value="0">
 <label for="zoom">Zoom</label><input id="zoom" type="range" min=".3" max="3" step=".05" value="1">
@@ -65,9 +69,28 @@ parts.push(txt((g.left+g.right)/2,h-pad-fs*.5,$('xlabel').value,fs*1.1,'middle')
 for(const p of plotPaths(c)){const d=p.pts.map(([x,y],i)=>(i?'L':'M')+x.toFixed(2)+','+y.toFixed(2)).join(' ');parts.push('<path d="'+d+'" fill="none" stroke="'+p.color+'" stroke-width="'+Math.max(.5,p.width)+'"'+(p.dash.length?' stroke-dasharray="'+p.dash.join(',')+'"':'')+'/>')}
 if($('border').checked)parts.push('<rect x="'+pad/3+'" y="'+pad/3+'" width="'+(w-pad*2/3)+'" height="'+(h-pad*2/3)+'" fill="none" stroke="'+$('accent').value+'"/>');return parts.join('')+'</svg>'}
 function save(blob,name){if(!blob)return;const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500)}
+function alignPlane(){try{
+ const frame=$('frameRef').value,plane=$('plane').value;if(!plane)throw Error('Select XY, XZ or YZ plane');
+ const axes=$('source').contentWindow.MagLabStudio.getFrameAxes(frame);
+ const index=plane.startsWith('xy')?2:plane.startsWith('xz')?1:0;
+ const sign=plane.endsWith('+')?1:-1;
+ const target=axes[index].map(v=>v*sign);
+ // The simulator uses an oblique projection. Compute its viewing normal and
+ // numerically align that normal with the requested coordinate-plane normal.
+ function viewingNormal(yaw,pitch){const rad=Math.PI/180,a=yaw*rad,b=pitch*rad;
+ const project=v=>{let [x,y,z]=v;[x,y]=[x*Math.cos(a)-y*Math.sin(a),x*Math.sin(a)+y*Math.cos(a)];const yy=y*Math.cos(b)-z*Math.sin(b),zz=y*Math.sin(b)+z*Math.cos(b);return [.86*x-.62*yy,.32*x+.44*yy-.96*zz]};
+ const ex=project([1,0,0]),ey=project([0,1,0]),ez=project([0,0,1]);
+ const u=[ex[0],ey[0],ez[0]],v=[ex[1],ey[1],ez[1]];
+ const n=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]],length=Math.hypot(...n);return n.map(x=>x/length)}
+ let best={score:-Infinity,yaw:0,pitch:0};
+ for(let y=-180;y<=180;y+=5)for(let p=-180;p<=180;p+=5){const n=viewingNormal(y,p),score=n.reduce((sum,v,i)=>sum+v*target[i],0);if(score>best.score)best={score,yaw:y,pitch:p}}
+ for(let step of [1,.2]){const center={...best};for(let y=center.yaw-5*step;y<=center.yaw+5*step;y+=step)for(let p=center.pitch-5*step;p<=center.pitch+5*step;p+=step){const n=viewingNormal(y,p),score=n.reduce((sum,v,i)=>sum+v*target[i],0);if(score>best.score)best={score,yaw:y,pitch:p}}}
+ $('yaw').value=Math.max(-180,Math.min(180,best.yaw));$('pitch').value=Math.max(-180,Math.min(180,best.pitch));camera();
+ $('status').textContent='Aligned '+frame+' '+plane.slice(0,2).toUpperCase()+' plane · normal '+(sign>0?'+':'−')+['X','Y','Z'][index]+'.';
+}catch(e){$('status').textContent='Plane alignment: '+e.message}}
 function camera(){try{const api=$('source').contentWindow.MagLabStudio;api.setCamera(+$('yaw').value,+$('pitch').value,+$('zoom').value);setTimeout(()=>{getSource();draw()},100)}catch(e){$('status').textContent='Camera unavailable: '+e.message}}
 function mode(){const is3=$('kind').value==='field';$('cameraOptions').hidden=!is3;$('plotOptions').hidden=is3;getSource();draw()}
-$('source').addEventListener('load',()=>setTimeout(()=>{getSource();draw()},1800));$('refresh').onclick=()=>{getSource();draw()};$('preset').onchange=()=>{[$('w').value,$('h').value]=presets[$('preset').value];draw()};$('kind').onchange=mode;
+$('source').addEventListener('load',()=>setTimeout(()=>{getSource();draw()},1800));$('refresh').onclick=()=>{getSource();draw()};$('preset').onchange=()=>{[$('w').value,$('h').value]=presets[$('preset').value];draw()};$('kind').onchange=mode;$('applyPlane').onclick=alignPlane;$('plane').onchange=()=>{if($('plane').value)alignPlane()};$('frameRef').onchange=()=>{if($('plane').value)alignPlane()};
 $('curve').onchange=()=>{$('curveColor').value=colors[+$('curve').value];draw()};$('curveColor').oninput=()=>{colors[+$('curve').value]=$('curveColor').value;draw()};
 for(const el of document.querySelectorAll('input,select'))if(!['kind','preset','curve','curveColor','yaw','pitch','zoom'].includes(el.id))el.addEventListener('input',draw);
 for(const id of ['yaw','pitch','zoom'])$(id).addEventListener('input',camera);
