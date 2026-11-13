@@ -103,58 +103,77 @@ $('png').onclick=()=>{draw();canvas.toBlob(b=>save(b,'MagLab_figure.png'),'image
 $('svg').onclick=()=>{draw();save(new Blob([svgExport()],{type:'image/svg+xml'}),'MagLab_figure.svg')};
 
 const waitPaint=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+function makePdf(pages){
+ // Standalone PDF 1.4 writer: JPEG image on each A4 page, no external library.
+ const enc=new TextEncoder(),parts=[],offsets=[0];let length=0;
+ const append=bytes=>{parts.push(bytes);length+=bytes.length};
+ const ascii=t=>append(enc.encode(t));
+ ascii('%PDF-1.4\n');
+ const objects=[];
+ objects[1]='<< /Type /Catalog /Pages 2 0 R >>';
+ objects[2]='<< /Type /Pages /Kids ['+pages.map((_,i)=>(3+i*3)+' 0 R').join(' ')+'] /Count '+pages.length+' >>';
+ pages.forEach((canvas,i)=>{
+  const base=3+i*3,image=base+1,content=base+2;
+  objects[base]='<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im0 '+image+' 0 R >> >> /Contents '+content+' 0 R >>';
+  const raw=atob(canvas.toDataURL('image/jpeg',.88).split(',')[1]),data=Uint8Array.from(raw,ch=>ch.charCodeAt(0));
+  objects[image]={head:'<< /Type /XObject /Subtype /Image /Width '+canvas.width+' /Height '+canvas.height+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+data.length+' >>\nstream\n',data,tail:'\nendstream'};
+  const stream='q\n595.28 0 0 841.89 0 0 cm\n/Im0 Do\nQ\n';
+  objects[content]='<< /Length '+enc.encode(stream).length+' >>\nstream\n'+stream+'endstream';
+ });
+ for(let i=1;i<objects.length;i++){
+  offsets[i]=length;ascii(i+' 0 obj\n');const obj=objects[i];
+  if(typeof obj==='string')ascii(obj);else{ascii(obj.head);append(obj.data);ascii(obj.tail)}
+  ascii('\nendobj\n');
+ }
+ const start=length;ascii('xref\n0 '+objects.length+'\n0000000000 65535 f \n');
+ for(let i=1;i<objects.length;i++)ascii(String(offsets[i]).padStart(10,'0')+' 00000 n \n');
+ ascii('trailer\n<< /Size '+objects.length+' /Root 1 0 R >>\nstartxref\n'+start+'\n%%EOF');
+ return new Blob(parts,{type:'application/pdf'});
+}
 async function exportPlanesPdf(){
- const button=$('allPlanesPdf'),api=$('source').contentWindow.MagLabStudio;
- if(!api){$('status').textContent='Simulator is not ready';return}
- if(!window.jspdf?.jsPDF){$('status').textContent='PDF library has not loaded. Check connection and refresh.';return}
- const previous={kind:$('kind').value,frame:$('frameRef').value,plane:$('plane').value,yaw:$('yaw').value,pitch:$('pitch').value,zoom:$('zoom').value,title:$('title').value};
+ const button=$('allPlanesPdf'),win=$('source').contentWindow,api=win?.MagLabStudio;
+ if(!api){$('status').textContent='Simulator is still loading. Try again in a moment.';return}
+ const previous={kind:$('kind').value,frame:$('frameRef').value,plane:$('plane').value,yaw:$('yaw').value,pitch:$('pitch').value,zoom:$('zoom').value};
  const views=$('pdfViews').value==='twelve'?['xy+','xy-','xz+','xz-','yz+','yz-']:['xy+','xz+','yz+'];
- const pdf=new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
- const source=$('source').contentDocument.getElementById('field');
- button.disabled=true;
+ const src=$('source').contentDocument.getElementById('field'),pages=[];
+ button.disabled=true;button.textContent='Generating PDF…';
  try{
   $('kind').value='field';
-  let page=0;
   for(const frame of ['lab','diamond']){
-   if(page++)pdf.addPage();
-   pdf.setFont('helvetica','bold');pdf.setFontSize(16);
-   pdf.text(frame==='lab'?'Laboratory coordinate frame':'Diamond crystal coordinate frame',14,17);
-   pdf.setFont('helvetica','normal');pdf.setFontSize(9);
-   pdf.text('NV Simulation / MagLab - orthogonal plane views',14,23);
-   const columns=2,rows=3,cellW=88,cellH=78,offsetX=14,offsetY=30;
+   const page=document.createElement('canvas');page.width=1240;page.height=1754;
+   const c=page.getContext('2d');c.fillStyle='#ffffff';c.fillRect(0,0,page.width,page.height);
+   c.fillStyle='#142538';c.font='bold 35px Arial';c.fillText(frame==='lab'?'Laboratory coordinate frame':'Diamond crystal coordinate frame',70,90);
+   c.font='20px Arial';c.fillText('MagLab NV Simulation — coordinate-plane views',70,130);
    for(let i=0;i<views.length;i++){
-    const plane=views[i],col=i%columns,row=Math.floor(i/columns);
-    $('frameRef').value=frame;$('plane').value=plane;alignPlane();
+    const plane=views[i],x=70+(i%2)*560,y=180+Math.floor(i/2)*485;
+    $('frameRef').value=frame;$('plane').value=plane;
+    alignPlane();
     await waitPaint();await waitPaint();
-    if(!source.width||!source.height)throw Error('3D canvas is not available');
-    const tile=document.createElement('canvas');tile.width=900;tile.height=630;
-    const tc=tile.getContext('2d');tc.fillStyle='#ffffff';tc.fillRect(0,0,900,630);
-    const scale=Math.min(850/source.width,550/source.height),dw=source.width*scale,dh=source.height*scale;
-    tc.drawImage(source,(900-dw)/2,40+(550-dh)/2,dw,dh);
-    const x=offsetX+col*92,y=offsetY+row*84;
-    pdf.setFont('helvetica','bold');pdf.setFontSize(10);
-    const normal=plane.startsWith('xy')?'Z':plane.startsWith('xz')?'Y':'X';
-    const sign=plane.endsWith('+')?'+':'-';
-    const prime=frame==='diamond'?"'":'';
-    pdf.text(plane.slice(0,2).toUpperCase()+prime+' plane  |  view from '+sign+normal+prime,x,y+5);
-    pdf.addImage(tile.toDataURL('image/jpeg',.9),'JPEG',x,y+8,cellW,cellH-13,undefined,'FAST');
-    pdf.setDrawColor(200);pdf.rect(x,y+8,cellW,cellH-13);
-    $('status').textContent='Preparing PDF: '+frame+' '+plane+' ('+(i+1)+'/'+views.length+')';
+    if(!src.width||!src.height)throw Error('3D canvas not ready');
+    c.fillStyle='#142538';c.font='bold 25px Arial';
+    const normal=plane.startsWith('xy')?'Z':plane.startsWith('xz')?'Y':'X',sign=plane.endsWith('+')?'+':'−',prime=frame==='diamond'?'′':'';
+    c.fillText(plane.slice(0,2).toUpperCase()+prime+' plane · view from '+sign+normal+prime,x,y+28);
+    const scale=Math.min(510/src.width,400/src.height),dw=src.width*scale,dh=src.height*scale;
+    c.fillStyle='#121d2b';c.fillRect(x,y+45,520,410);
+    c.drawImage(src,x+(520-dw)/2,y+45+(410-dh)/2,dw,dh);
+    c.strokeStyle='#b5c4d0';c.strokeRect(x,y+45,520,410);
+    $('status').textContent='Generating '+frame+' frame: '+(i+1)+'/'+views.length+' views…';
+    await new Promise(resolve=>setTimeout(resolve,0));
    }
-   pdf.setFont('helvetica','normal');pdf.setFontSize(8);
-   pdf.text('Crystal orientation and physical parameters follow the embedded simulator.',14,290);
+   c.fillStyle='#51677a';c.font='18px Arial';c.fillText('Views use the current diamond orientation, magnetic field and simulation parameters.',70,1695);
+   pages.push(page);
   }
-  pdf.save('MagLab_lab_and_diamond_plane_views.pdf');
-  $('status').textContent='Multi-view PDF created: '+(views.length*2)+' labeled views.';
+  save(makePdf(pages),'MagLab_lab_and_diamond_plane_views.pdf');
+  $('status').textContent='PDF generated: '+(views.length*2)+' views across 2 pages.';
  }catch(e){$('status').textContent='PDF export failed: '+e.message}
  finally{
   $('frameRef').value=previous.frame;$('plane').value=previous.plane;
   $('yaw').value=previous.yaw;$('pitch').value=previous.pitch;$('zoom').value=previous.zoom;
   api.setCamera(+previous.yaw,+previous.pitch,+previous.zoom);
-  $('kind').value=previous.kind;button.disabled=false;
+  $('kind').value=previous.kind;button.disabled=false;button.textContent='Save all lab & diamond planes as PDF';
   await waitPaint();getSource();draw();
  }
 }
 $('allPlanesPdf').onclick=exportPlanesPdf;
 mode();
-</script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js" defer></script></body></html>
+</script></body></html>
