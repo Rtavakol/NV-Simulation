@@ -654,7 +654,7 @@ let scheduled=false;
 function renderFM(){
  scheduled=false;
  if(typeof spectrum!=='function'||typeof activeTransitions!=='function')return;
- const mode=v('fmMode').value,dev=Math.max(0,num('fmDev')),rate=Math.max(1,num('fmRate')),phase=num('fmPhase')*Math.PI/180,harm=num('fmHarm'),N=num('fmSamples'),tr=activeTransitions(),freqs=tr.map(x=>x.f).filter(Number.isFinite),D=typeof effectiveD==='function'?effectiveD():2870,pad=Math.max(2,num('fmSpan')),lo=(freqs.length?Math.min(...freqs):D)-pad,hi=(freqs.length?Math.max(...freqs):D)+pad;
+ const mode=v('fmMode').value,dev=Math.max(0,num('fmDev')),rate=Math.max(1,num('fmRate')),phase=num('fmPhase')*Math.PI/180,harm=num('fmHarm'),N=num('fmSamples'),tr=activeTransitions(),D=typeof effectiveD==='function'?effectiveD():2870,peak=Math.max(0,...tr.map(t=>t.weight||0)),strong=tr.filter(t=>Number.isFinite(t.f)&&t.weight>=peak*1e-3),near=strong.filter(t=>Math.abs(t.f-D)<Math.max(500,Math.abs(D)*.3)),freqs=(near.length?near:strong).map(t=>t.f),pad=Math.max(2,num('fmSpan')),lo=(freqs.length?Math.min(...freqs):D)-pad,hi=(freqs.length?Math.max(...freqs):D)+pad;
  const base=[],avg=[],xs=[],ys=[],steps=420;
  for(let i=0;i<=steps;i++){const f=lo+(hi-lo)*i/steps,p0=spectrum(f),d0=100-p0;let sum=0,x=0,y=0;
  for(let j=0;j<N;j++){const a=2*Math.PI*j/N,g=wave(j/N),p=mode==='fm'?spectrum(f+dev*g):100-d0*(1+Math.min(100,dev)/100*g);sum+=p;x+=p*Math.cos(harm*a+phase);y+=p*Math.sin(harm*a+phase)}
@@ -665,7 +665,7 @@ function renderFM(){
  graph('fmXY',[{label:'X (in phase)',color:'#70b6ff',points:xs},{label:'Y (quadrature)',color:'#ffb86b',points:ys}],lo,hi,-abs*1.12,abs*1.12,'Carrier frequency (MHz)','Demodulated PL (%)');
  const tpts=Array.from({length:301},(_,i)=>{let t=2*i/300;return[t,mode==='fm'?dev*wave(t):dev*wave(t)]});
  graph('fmTime',[{label:mode==='fm'?'Frequency offset':'AM depth variation',color:'#d49bff',points:tpts}],0,2,-Math.max(.1,dev)*1.15,Math.max(.1,dev)*1.15,'Time (modulation cycles)',mode==='fm'?'Offset (MHz)':'Depth (%)');
- v('fmInfo').textContent=(mode==='fm'?'FM peak deviation: '+dev+' MHz':'AM depth: '+dev+'%')+' · Rate: '+rate.toLocaleString()+' Hz · Period: '+(1e6/rate).toFixed(2)+' µs · '+N+' samples/cycle · '+(freqs.length?'Using current selected transitions':'No selected transitions')+'. Quasi-static steady-state model; rate-dependent dynamics not included.';
+ v('fmInfo').textContent=(mode==='fm'?'FM peak deviation: '+dev+' MHz':'AM depth: '+dev+'%')+' · Rate: '+rate.toLocaleString()+' Hz · Period: '+(1e6/rate).toFixed(2)+' µs · '+N+' samples/cycle · '+(freqs.length?'Using observable transitions near the ODMR band':'No selected transitions')+'. Quasi-static steady-state model; rate-dependent dynamics not included.';
 }
 function schedule(){if(!scheduled){scheduled=true;requestAnimationFrame(renderFM)}}
 ids.forEach(id=>{v(id).addEventListener('input',schedule);v(id).addEventListener('change',schedule)});
