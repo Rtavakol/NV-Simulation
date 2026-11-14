@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Modulation Studio · MagLab</title><style>
+:root{color-scheme:dark;--bg:#0b111b;--panel:#121d2b;--line:#26384a;--muted:#9cafc2;--accent:#6de4c0}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#edf4fa;font:14px system-ui,sans-serif}main{max-width:1440px;margin:auto;padding:28px}header{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:24px}h1{font-size:30px;letter-spacing:-1px;margin:5px 0}h2{font-size:16px;margin:0 0 12px}.eyebrow{font-size:11px;letter-spacing:2px;color:var(--accent);text-transform:uppercase}.muted,small{color:var(--muted)}.top{display:grid;grid-template-columns:minmax(300px,1fr) 340px;gap:18px}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}.scene{position:relative;padding:0;overflow:hidden}#field{width:100%;height:370px;display:block;touch-action:none;cursor:grab}.hint{position:absolute;left:20px;bottom:16px;color:var(--muted);font-size:12px;pointer-events:none}.badge{position:absolute;top:18px;left:20px;color:var(--accent);font-size:11px;letter-spacing:1px}.readouts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}.readouts div{padding:12px;background:#0c1521;border-radius:10px;font-variant-numeric:tabular-nums}.readouts strong{display:block;font-size:18px;margin-top:4px}label{display:block;color:var(--muted);margin:12px 0 4px}label span{float:right;color:#fff}input[type=range]{width:100%;accent-color:var(--accent)}input[type=number],select{background:#0c1521;border:1px solid #395066;border-radius:6px;color:#fff;padding:6px;width:95px}button{background:#1c3041;border:1px solid #3a5368;color:#edf4fa;border-radius:7px;padding:8px 11px;cursor:pointer}button:hover{border-color:var(--accent)}button:focus-visible,input:focus-visible{outline:2px solid var(--accent)}.buttons{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}.spectrum{margin-top:18px}.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}#plot{width:100%;height:330px;display:block;touch-action:none}.legend{display:flex;gap:18px;flex-wrap:wrap;margin:12px 0}.legend label{margin:0;cursor:pointer}.dot{width:8px;height:8px;display:inline-block;border-radius:50%;margin-right:5px}.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:16px}.controls label{margin-top:0}.note{font-size:12px;line-height:1.7;color:var(--muted)}table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}th,td{text-align:left;border-bottom:1px solid var(--line);padding:10px}th{color:var(--muted);font-size:12px;font-weight:500}details{margin-top:18px}summary{cursor:pointer}a{color:var(--accent)}.seriesChannels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:16px}.seriesChannel{padding:14px;border:1px solid var(--line);border-radius:10px;background:#0c1521}.seriesPairs{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}.seriesChannel input:disabled,.seriesChannel select:disabled{opacity:.45}@media(max-width:1000px){.seriesChannels{grid-template-columns:1fr 1fr}}@media(max-width:520px){.seriesChannels{grid-template-columns:1fr}}.environment{margin:20px 0;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.scaleLabels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:6px}.bipolar{position:relative}.bipolar:after{content:"";position:absolute;left:50%;top:3px;height:18px;border-left:1px solid #9cafc2;pointer-events:none}.environment label span{float:none;display:block;color:var(--accent);margin-top:5px}.environment input[type=number]{width:90px}footer{padding-top:22px;font-size:12px;color:var(--muted)}@media(max-width:800px){main{padding:15px}.top{grid-template-columns:1fr}.controls{grid-template-columns:1fr 1fr}header{align-items:start}header .muted{display:none}#field{height:310px}th,td{padding:8px 4px;font-size:12px}}
+
+html{scroll-behavior:smooth}main{margin-left:228px;margin-right:auto}main [id]{scroll-margin-top:24px}
+.sideNav{position:fixed;left:0;top:0;bottom:0;width:220px;padding:24px 14px;background:#0d1723;border-right:1px solid var(--line);overflow-y:auto;z-index:20}
+.sideNav a{text-decoration:none}.navBrand{font-size:25px;font-weight:700;letter-spacing:-1px;display:block;padding:0 10px}.navSubtitle{display:block;color:var(--muted);font-size:11px;line-height:1.6;padding:6px 10px 14px}
+.jumpLinks{display:flex;flex-direction:column;gap:4px}.jumpLink{display:block;padding:10px;border-radius:8px;color:#b6c8d9;font-size:12px;line-height:1.4}.jumpLink:hover,.jumpLink[aria-current="location"]{background:#1c3041;color:var(--accent)}.sideNav a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.navRelated{border-top:1px solid var(--line);margin-top:20px;padding-top:10px}.navRelated a{display:block;padding:8px 10px;font-size:13px}.navRelated a.navRepo{font-size:11px;color:var(--muted)}
+@media(max-width:1100px){main{margin-left:0}main [id]{scroll-margin-top:100px}.sideNav{position:sticky;top:0;bottom:auto;width:100%;padding:8px 12px;overflow:visible;border-right:0;border-bottom:1px solid var(--line)}.navBrand{font-size:17px;display:inline-block;padding:0 6px}.sideNav>.navSubtitle{display:none}.jumpLinks{flex-direction:row;overflow-x:auto;padding:5px 0;gap:4px}.jumpLink{white-space:nowrap;padding:7px 9px}.navRelated{position:absolute;right:12px;top:4px;margin:0;padding:0;border:0}.navRelated .navSubtitle,.navRepo{display:none!important}.navRelated a{font-size:12px;padding:5px}.top{grid-template-columns:1fr}.controls{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+.scene{display:flex;flex-direction:column}.scene>.hint{position:static;padding:10px 18px;line-height:1.6;font-size:11px}
+.quickSpectrum{display:flex;flex-direction:column;flex:1;padding:14px 16px 12px;border-top:1px solid var(--line);background:#121d2b;min-width:0}
+.quickSpectrum h2{margin:0;font-size:14px}.quickSpectrum .bar>a{font-size:11px}
+.miniLegend{display:flex;flex-wrap:wrap;gap:12px;font-size:10px;color:var(--muted);margin:8px 0 0}
+#miniPlot{display:block;width:100%;height:250px;min-height:220px;flex:1}
+.quickSpectrum>small{font-size:10px;line-height:1.5;margin-top:4px}
+</style></head><body><nav class="sideNav" aria-label="Simulator sections"><a class="navBrand" href="#top">MagLab</a><div class="navSubtitle">NV magnetic resonance</div><div class="jumpLinks"><a class="jumpLink" href="#top">Overview</a><a class="jumpLink" href="#bias-field">Bias field & 3D view</a><a class="jumpLink" href="#crystal-orientation">Diamond orientation</a><a class="jumpLink" href="#spin-model">Hamiltonian & microwaves</a><a class="jumpLink" href="#modulation">Modulation Studio</a><a class="jumpLink" href="index.html">Main simulator ↗</a><a class="jumpLink" href="#odmr-spectrum">PL spectrum</a><a class="jumpLink" href="publication-studio.html">Publication Studio ↗</a><a class="jumpLink" href="animation-studio.html">Animation Studio ↗</a><a class="jumpLink" href="#field-reconstruction">Field reconstruction</a><a class="jumpLink" href="#environment-controls">Temperature & test fields</a><a class="jumpLink" href="#seriesSection">Time-series experiment</a><a class="jumpLink" href="#resonance-tracking">Resonance tracking</a><a class="jumpLink" href="#resonance-table">Resonance table</a><a class="jumpLink" href="#individual-transitions">Individual transitions</a><a class="jumpLink" href="#physics-notes">Physics & conventions</a></div><div class="navRelated"><span class="navSubtitle">EXPLORE ALSO</span><a href="https://rtavakol.github.io/NV_Optical_Simulator/" target="_blank" rel="noopener noreferrer">Optical simulator ↗</a><a class="navRepo" href="https://github.com/Rtavakol/NV_Optical_Simulator" target="_blank" rel="noopener noreferrer">Optical simulator on GitHub ↗</a></div></nav><main id="top"><header><div><div class="eyebrow">MagLab / interactive physics</div><h1>NV magnetic resonance</h1><div class="muted">Explore how a bias field shapes the diamond fluorescence spectrum.</div></div><div class="muted">Developed by<br><b>R. Tavakoli Dinani</b></div></header>
+<div class="card bar" style="margin-bottom:18px;padding:14px 18px"><div><b>See resonance tracking in action</b><div class="note" id="demoNotice">A 10-second example runs automatically on opening. Temperature drifts while Bx oscillates, By decays and Bz steps.</div><a href="#seriesSection">Explore the time-series experiment ↓</a></div><button id="welcomeDemo">Stop example</button></div>
+<div class="top" id="bias-field"><section class="card scene"><div class="badge">FIELD & CRYSTAL · LAB FRAME</div><div class="buttons" style="position:absolute;top:34px;left:20px;z-index:1"><button id="orbitMode" aria-pressed="true">✋ Rotate view</button><button id="fieldMode" aria-pressed="false">Steer B</button><button id="b1Mode" aria-pressed="false">Steer B₁</button><button id="resetView">Reset view</button><button id="viewPng">Save view PNG</button></div><canvas id="field" tabindex="0" aria-label="Drag to rotate the lab view. Switch to Steer B for the bias, or Steer B₁ for microwave direction. Drag the round B₁ tip to activate linear drive. Arrow keys steer the selected B₁ mode or rotate the view; plus and minus zoom."></canvas><div class="hint" id="sceneHint">Drag to rotate view · scroll to zoom · drag B₁ tip to steer microwaves</div><div class="quickSpectrum"><div class="bar"><h2>Live PL preview</h2><button id="miniPlPng">Save PL PNG</button><a href="#odmr-spectrum">Full spectrum & controls ↓</a></div><div class="miniLegend"><span style="color:#fff">— Total PL</span><span style="color:#6de4c0">NV1</span><span style="color:#70b6ff">NV2</span><span style="color:#ffb86b">NV3</span><span style="color:#d49bff">NV4</span></div><canvas id="miniPlot" aria-label="Live photoluminescence spectrum preview, synchronized with the full spectrum below"></canvas><small>Same spectrum and frequency window as the full plot below.</small></div></section><section class="card"><h2>Bias magnetic field</h2><label for="mag">Magnitude <span><input id="magN" type="number" min="0" max="1000" step="0.01" aria-label="Field magnitude in mT"> mT</span></label><input id="mag" type="range" min="0" max="1000" step="0.01"><label for="fieldScale">Field slider range</label><select id="fieldScale" style="width:100%"><option value="20" selected>Fine: 0–20 mT</option><option value="200">0–200 mT</option><option value="1000">0–1000 mT (1 T)</option></select><small id="teslaValue"></small><label for="theta">Polar angle θ <span id="thetaV"></span></label><input id="theta" type="range" min="0" max="180" step="0.1"><label for="phi">Azimuth φ <span id="phiV"></span></label><input id="phi" type="range" min="0" max="360" step="0.1"><div class="readouts"><div><small>Bx / mT</small><strong id="bx"></strong></div><div><small>By / mT</small><strong id="by"></strong></div><div><small>Bz / mT</small><strong id="bz"></strong></div></div><p class="note">Bx, By, Bz readouts show the total field: bias + lab test field.</p><div class="buttons"><button data-preset="lab">Lab bias</button><button data-preset="z">Along lab z</button><button data-preset="nv">Along NV₁</button><button data-preset="zero">Zero bias</button></div><div style="border-top:1px solid var(--line);margin-top:18px;padding-top:16px"><h2>Microwave field B₁ direction</h2><label for="mwTheta">Polar angle θ₁ <span id="mwThetaV"></span></label><input id="mwTheta" type="range" min="0" max="180" step="0.1" value="90"><label for="mwPhi">Azimuth φ₁ <span id="mwPhiV"></span></label><input id="mwPhi" type="range" min="0" max="360" step="0.1" value="0"><p class="note" id="b1PanelInfo"></p><div class="buttons"><button id="b1Linear">Use linear B₁</button><button id="b1Hand">Steer B₁ by hand</button></div></div></section></div>
+<section class="card spectrum" id="crystal-orientation"><h2>Diamond orientation relative to the lab</h2><label for="cut">Diamond surface plane</label><select id="cut" style="width:100%"><option value="001">(001) / (100) family</option><option value="110">(110)</option><option value="111">(111)</option></select><div class="controls"><div><label for="rotation">Rotation about lab z (yaw)</label><input id="rotation" type="range" min="-180" max="180" step="0.1" value="45"><input id="rotationN" type="number" min="-180" max="180" step="0.1" aria-label="Rotation about lab z (yaw) in degrees"> °</div><div><label for="tiltY">Rotation about lab y (pitch)</label><input id="tiltY" type="range" min="-180" max="180" step="0.1" value="0"><input id="tiltYN" type="number" min="-180" max="180" step="0.1" aria-label="Rotation about lab y (pitch) in degrees"> °</div><div><label for="tiltX">Rotation about lab x (roll)</label><input id="tiltX" type="range" min="-180" max="180" step="0.1" value="0"><input id="tiltXN" type="number" min="-180" max="180" step="0.1" aria-label="Rotation about lab x (roll) in degrees"> °</div></div><div class="buttons"><button id="crystal111">(111), rotated 45°</button><button id="crystalReset">Reset rotations</button></div><p class="note">At zero rotation, the selected surface normal points along lab +z. Rotations act about fixed lab axes in this order: x (roll), y (pitch), z (yaw). For a (111) diamond rotated 45° in the lab xy plane, select (111), set yaw to 45°, and leave pitch and roll at 0°.</p><p class="note" id="crystalInfo"></p></section><section class="card spectrum" id="spin-model"><h2>Electron–¹⁴N model & microwave drive</h2><p class="note">Full 9 × 9 ground-state Hamiltonian (S = 1, I = 1). Frequencies and drive strengths come from eigenstates. PL amplitudes use an illustrative spin-brightness model, not an optical rate-equation calculation.</p><div class="controls"><div><label for="D">D at 25 °C (MHz)</label><input id="D" type="number" min="2800" max="3000" step="0.01" value="2870" style="width:100%"></div><div><label for="apar">A∥ (MHz)</label><input id="apar" type="number" min="-5" max="0" step="0.001" value="-2.16" style="width:100%"></div><div><label for="aperp">A⊥ (MHz)</label><input id="aperp" type="number" min="-5" max="0" step="0.001" value="-2.7" style="width:100%"></div><div><label for="quad">Quadrupole Q (MHz)</label><input id="quad" type="number" min="-10" max="0" step="0.001" value="-4.95" style="width:100%"></div><div><label for="gammaN">¹⁴N γn (MHz/T)</label><input id="gammaN" type="number" min="0" max="5" step="0.001" value="3.077" style="width:100%"></div><div><label for="mwMode">Microwave polarization</label><select id="mwMode" style="width:100%"><option value="isotropic">Average over lab x, y, z</option><option value="linear">Linear, chosen lab direction</option></select></div></div><div class="buttons"><button id="oneTesla">1 T along NV₁</button><button id="crossing">102.4 mT along NV₁</button><button id="resetModel">Reset model constants</button></div><p class="note" id="mwInfo"></p></section><section class="card spectrum" id="modulation"><p class="eyebrow">MagLab / Modulation Studio</p><h1>FM & AM modulation experiments</h1><p class="note">Sweep the ODMR response, explore demodulation, and optimize the zero-crossing slope for individual NV transitions.</p><div class="bar"><div><h2>Microwave modulation · FM sweep</h2><small>Uses the current NV Hamiltonian, field, polarization, linewidth and selected resonances</small></div><div class="buttons"><button id="fmSave">Save FM plots PNG</button></div></div><div class="controls">
+<div><label for="fmMode">Modulation mode</label><select id="fmMode"><option value="fm">Frequency modulation (FM)</option><option value="am">Amplitude modulation (AM, illustrative)</option></select></div>
+<div><label for="fmWave">Modulation function</label><select id="fmWave"><option value="sine">Sine</option><option value="triangle">Triangle</option><option value="square">Square</option><option value="saw">Sawtooth</option></select></div>
+<div><label for="fmDev">FM deviation (MHz) / AM depth (%)</label><input id="fmDev" type="number" min="0" max="100" step=".1" value=".5" style="width:100%"></div>
+<div><label for="fmRate">Modulation rate (Hz)</label><input id="fmRate" type="number" min="1" max="300000" step="100" value="48000" style="width:100%"></div>
+<div><label for="fmPhase">Lock-in reference phase (degrees)</label><input id="fmPhase" type="number" min="0" max="360" step="5" value="0" style="width:100%"></div>
+<div><label for="fmHarm">Lock-in harmonic</label><select id="fmHarm"><option value="1">1f</option><option value="2">2f</option></select></div>
+<div><label for="fmSamples">Samples per modulation cycle</label><select id="fmSamples"><option>32</option><option selected>64</option><option>128</option><option>256</option></select></div>
+<div><label for="fmSpan">Sweep padding (MHz)</label><input id="fmSpan" type="number" min="2" max="100" value="12" step="1" style="width:100%"></div>
+</div><p class="note" id="fmInfo">FM uses instantaneous frequency and steady-state PL. The rate sets the time axis; finite response dynamics are not yet included.</p>
+<div class="bar"><h2>Microwave carrier sweep: unmodulated and cycle-averaged PL</h2></div><canvas id="fmPL" style="width:100%;height:290px;display:block" aria-label="FM-averaged PL sweep"></canvas>
+<div class="bar"><h2>Lock-in X and Y vs carrier frequency</h2></div><canvas id="fmXY" style="width:100%;height:290px;display:block" aria-label="Lock-in X and Y response"></canvas>
+<div class="bar"><h2>Instantaneous modulation waveform</h2></div><canvas id="fmTime" style="width:100%;height:190px;display:block" aria-label="Microwave modulation waveform"></canvas>
+<p class="note">The AM option is an illustrative contrast-scaling approximation, not a microwave-power-dependent spin-dynamics calculation. FM and AM use a quasi-static steady-state model; modulation-rate-dependent NV dynamics and instrument filtering are planned next.</p></section><section class="card spectrum" id="slope-studio"><h2>Zero-crossing slope optimization versus FM deviation</h2><p class="note">Select one of the eight strongest ODMR transitions (two per NV orientation), scan the FM deviation and measure the signed first-harmonic X slope at the nearest zero crossing. The signal is normalized PL percent, so the slope is %/MHz, not V/MHz.</p><div class="controls">
+<div><label>Transition</label><select id="slTransition" style="width:100%"></select></div>
+<div><label>Minimum FM deviation (MHz)</label><input id="slMin" type="number" value=".1" min="0" step=".1" style="width:100%"></div>
+<div><label>Maximum FM deviation (MHz)</label><input id="slMax" type="number" value="10" min=".1" step=".5" style="width:100%"></div>
+<div><label>Deviation points</label><input id="slCount" type="number" value="31" min="5" max="101" step="1" style="width:100%"></div>
+</div><div class="buttons"><button id="slRun">Run deviation sweep</button><button id="slCSV">Export CSV</button><button id="slPNG">Save plot PNG</button></div><p id="slStatus" class="note">Select a transition and run the sweep.</p><canvas id="slPlot" style="display:block;width:100%;height:360px"></canvas><p class="note">The slope is obtained by numerically differentiating the demodulated X response at a sign-changing zero crossing near the selected transition. Overlapping resonances can shift or eliminate the crossing. A finite modulation-rate response and power-dependent saturation are not yet included.</p></section><section class="card spectrum" id="odmr-spectrum"><div class="bar"><div><h2>Optically detected magnetic resonance</h2><small id="status"></small></div><div class="buttons" style="margin:0"><button id="fit">Fit spectrum</button><button id="zoom">Zoom in</button><button id="out">Zoom out</button><button id="plPng">Save PL PNG</button><button id="csv">Save PL CSV</button><button id="transCsv">Save transitions CSV</button></div></div><div class="legend" id="legend"></div><canvas id="plot" aria-label="Normalized photoluminescence versus microwave frequency. Scroll to zoom around cursor."></canvas><div class="controls"><div><label for="width">Linewidth FWHM <span id="widthV"></span></label><input id="width" type="range" min="0.1" max="8" step="0.05" value="1.3"></div><div><label for="contrast">Illustrative PL contrast scale <span id="contrastV"></span></label><input id="contrast" type="range" min="0.1" max="5" step="0.1" value="2"></div></div><div class="environment" id="environment-controls"><h2>Temperature & lab-frame test field</h2><p class="note">Change temperature or add a background field on top of the bias. These controls hold the frequency window fixed so you can see the resonances move; use Fit spectrum to reframe.</p><div class="controls"><div><label for="temp">Diamond temperature <span id="tempV"></span></label><input id="temp" type="range" min="0" max="200" step="0.1" value="25"><input id="tempN" type="number" min="0" max="200" step="0.1" aria-label="Temperature in degrees Celsius"> °C<div class="scaleLabels"><span>0 °C</span><span>100 °C</span><span>200 °C</span></div></div><div><label for="testX">Lab test Bx <span id="testXV"></span></label><div class="bipolar"><input id="testX" type="range" min="-100" max="100" step="0.1" value="0"></div><input id="testXN" type="number" min="-100" max="100" step="0.1" aria-label="Lab test Bx in microtesla"> µT<div class="scaleLabels"><span>−100 µT</span><span>0</span><span>+100 µT</span></div></div><div><label for="testY">Lab test By <span id="testYV"></span></label><div class="bipolar"><input id="testY" type="range" min="-100" max="100" step="0.1" value="0"></div><input id="testYN" type="number" min="-100" max="100" step="0.1" aria-label="Lab test By in microtesla"> µT<div class="scaleLabels"><span>−100 µT</span><span>0</span><span>+100 µT</span></div></div><div><label for="testZ">Lab test Bz <span id="testZV"></span></label><div class="bipolar"><input id="testZ" type="range" min="-100" max="100" step="0.1" value="0"></div><input id="testZN" type="number" min="-100" max="100" step="0.1" aria-label="Lab test Bz in microtesla"> µT<div class="scaleLabels"><span>−100 µT</span><span>0</span><span>+100 µT</span></div></div></div><div class="buttons"><button id="resetEnvironment">Reset: 25 °C, zero test field</button><button id="zeroTests">Zero test fields</button></div><p class="note" id="environmentInfo"></p><p class="note">Temperature model: a cubic D(T) shift anchored to your D at 25 °C. Only the resonance shift is modeled; temperature-dependent PL brightness, linewidth and hyperfine constants remain fixed. Below 27 °C the cubic uses a short extrapolation.</p></div><div class="buttons"><label for="fmin" style="margin:0">Frequency window (MHz): <input id="fmin" type="number" min="0" max="65000" step="0.001" aria-label="Minimum frequency in MHz"></label><label for="fmax" style="margin:0">to <input id="fmax" type="number" min="0" max="65000" step="0.001" aria-label="Maximum frequency in MHz"></label><button id="applyRange">Apply window</button></div><p class="note" id="rangeError" role="status"></p><div class="note" id="warning"></div></section>
+<section class="card spectrum" id="field-reconstruction"><h2>Reconstruct the bias field from measured resonances</h2><p class="note">Enter the eight electronic-branch centre frequencies in MHz, ordered from low to high. Use the central hyperfine line of each triplet, rather than all 24 hyperfine lines. Set the diamond orientation, temperature, D at 25 °C and hyperfine parameters above to match your experiment.</p><div class="controls"><div><label for="measuredR1">Resonance 1 / MHz</label><input id="measuredR1" type="number" min="0.000001" max="65000" step="0.001" aria-label="Measured resonance 1 in MHz" style="width:100%"></div><div><label for="measuredR2">Resonance 2 / MHz</label><input id="measuredR2" type="number" min="0.000001" max="65000" step="0.001" aria-label="Measured resonance 2 in MHz" style="width:100%"></div><div><label for="measuredR3">Resonance 3 / MHz</label><input id="measuredR3" type="number" min="0.000001" max="65000" step="0.001" aria-label="Measured resonance 3 in MHz" style="width:100%"></div><div><label for="measuredR4">Resonance 4 / MHz</label><input id="measuredR4" type="number" min="0.000001" max="65000" step="0.001" aria-label="Measured resonance 4 in MHz" style="width:100%"></div><div><label for="measuredR5">Resonance 5 / MHz</label><input id="measuredR5" type="number" min="0.000001" max="65000" step="0.001" aria-label="Measured resonance 5 in MHz" style="width:100%"></div><div><label for="measuredR6">Resonance 6 / MHz</label><input id="measuredR6" type="number" min="0.000001" max="65000" step="0.001" aria-label="Measured resonance 6 in MHz" style="width:100%"></div><div><label for="measuredR7">Resonance 7 / MHz</label><input id="measuredR7" type="number" min="0.000001" max="65000" step="0.001" aria-label="Measured resonance 7 in MHz" style="width:100%"></div><div><label for="measuredR8">Resonance 8 / MHz</label><input id="measuredR8" type="number" min="0.000001" max="65000" step="0.001" aria-label="Measured resonance 8 in MHz" style="width:100%"></div></div><div class="controls"><div><label for="inverseModel">Frequency model</label><select id="inverseModel" style="width:100%"><option value="hyperfine">Full ¹⁴N central transitions</option><option value="electronic">Electronic centres (ignore hyperfine)</option></select></div><div><label for="inverseTolerance">Residual warning threshold / MHz</label><input id="inverseTolerance" type="number" min="0.000001" max="100" step="0.001" value="0.01" style="width:100%"></div></div><div class="buttons"><button id="inverseCurrent">Fill from current simulated field</button><button id="inverseSort">Sort entered frequencies</button><button id="inverseFit">Reconstruct field</button><button id="inverseCancel" disabled>Cancel fit</button><button id="inverseApply" disabled>Apply chosen bias to simulator</button><button id="inverseExport" disabled>Save reconstruction CSV</button></div><p class="note" id="inverseStatus" role="status">Ready · fill eight frequencies, then reconstruct.</p><p class="note" style="color:#ffb86b">Direction ambiguity: eight unlabelled frequencies do not generally determine a unique field direction. Reversing B and permuting the equivalent crystal axes can reproduce the same spectrum. The tool lists compatible symmetry-related solutions and initially chooses the one nearest the current simulated bias; this reference is a preference, not extra measured evidence. With nonzero test-field offsets, the compatible solutions can also imply different bias magnitudes.</p><div id="inverseResults" hidden><div class="readouts"><div><small>Bias magnitude / mT</small><strong id="inverseMagnitude"></strong></div><div><small>Bias θ / °</small><strong id="inverseTheta"></strong></div><div><small>Bias φ / °</small><strong id="inversePhi"></strong></div></div><p class="note" id="inverseVector"></p><p class="note" id="inverseQuality"></p><label for="inverseSolution">Compatible direction (choose to inspect)</label><select id="inverseSolution" style="width:100%"></select><div style="overflow-x:auto"><table><thead><tr><th>Resonance</th><th>Measured / MHz</th><th>Predicted / MHz</th><th>Residual / kHz</th></tr></thead><tbody id="inverseResidualRows"></tbody></table></div></div><p class="note">The fit first reconstructs the <b>total static lab field</b>. The current lab test-field offsets are then subtracted to report the applied bias. Temperature and Hamiltonian parameters are treated as known; they are not fitted. All eight inputs use equal weight. Full-¹⁴N mode uses the same representative central-transition rule as eight-resonance tracking; strongly mixed or overlapping lines can make this assignment unreliable. A small numerical residual does not by itself establish a unique or accurate experimental solution. Search range: total |B| ≤ 1000.2 mT.</p></section>
+<section class="card spectrum" id="seriesSection"><h2>Time-series experiment</h2><p class="note">Choose a waveform independently for temperature and each lab test-field component. Test fields add to the fixed bias. Run animates the ODMR spectrum and tracks the selected resonance centres using eigenstate overlap, with an optional individual-hyperfine mode.</p><label for="seriesSource">Time-series source</label><select id="seriesSource" style="width:100%;max-width:420px"><option value="functions">Generated functions</option><option value="csv">Your own CSV file</option></select><div id="csvUploadPanel" class="card" style="padding:14px;margin:14px 0;background:#0c1521" hidden><h2>Load temperature and lab test fields from one CSV</h2><input id="seriesFile" type="file" accept=".csv,text/csv" aria-label="Upload time-series CSV" style="max-width:100%"><div class="buttons"><a href="example_time_series.csv" download="NV_example_time_series.csv">Download example CSV</a><button id="clearSeriesFile">Clear file</button></div><p id="csvFileStatus" class="note" role="status">No file loaded.</p><p class="note">Required first row, with these exact column names and order:</p><pre style="overflow:auto;padding:12px;background:#121d2b;border-radius:8px">time_s,temperature_C,Bx_uT,By_uT,Bz_uT
+0,25,0,0,0
+1,25.5,50,-20,0
+2,26,0,0,20</pre><ul class="note"><li><b>time_s:</b> seconds; starts at 0 and increases strictly. Uneven time intervals are allowed. Final time must be 0.1–3600 s.</li><li><b>temperature_C:</b> diamond temperature in °C, from 0 to 200.</li><li><b>Bx_uT, By_uT, Bz_uT:</b> added lab-frame test fields in µT, each from −100 to +100. These are added to the bias field set above, not absolute total fields.</li><li>Use decimal points and commas as separators. Include all five numeric values in every row. Blank lines and comment lines starting with # are ignored. At least 2 and at most 10,001 data rows; file size at most 2 MB.</li><li>Each row is one simulation sample, using the supplied timestamps directly. Values are held until the next timestamp; plotted lines connect samples. Use dense data for smooth playback. Duration comes from the last time value; the sample-interval setting is not used.</li></ul><p class="note">The file is read locally in your browser; its contents are not uploaded to a server. Choose your resonance selection below, then press Run. CSV/PNG exports include the loaded inputs and tracked resonance response.</p></div><div class="seriesChannels" id="seriesGenerators"><div class="seriesChannel"><h2>Temperature / °C</h2><label for="ts_temp_type">Function</label><select id="ts_temp_type" style="width:100%"><option value="constant">Constant</option><option value="sine">Sinusoidal</option><option value="damped">Damped sinusoid</option><option value="noise">Noisy (bounded random)</option><option value="step">Step</option><option value="drift">Linear drift</option><option value="square">Square wave</option><option value="triangle">Triangle wave</option></select><div class="seriesPairs"><div><label for="ts_temp_min">Minimum</label><input id="ts_temp_min" type="number" min="0" max="200" step="0.1" value="20" style="width:100%"></div><div><label for="ts_temp_max">Maximum</label><input id="ts_temp_max" type="number" min="0" max="200" step="0.1" value="30" style="width:100%"></div><div><label for="ts_temp_value">Constant value</label><input id="ts_temp_value" type="number" min="0" max="200" step="0.1" value="25" style="width:100%"></div><div><label for="ts_temp_freq">Frequency / Hz</label><input id="ts_temp_freq" type="number" min="0.001" max="100" step="0.001" value="0.2" style="width:100%"></div><div><label for="ts_temp_phase">Phase / °</label><input id="ts_temp_phase" type="number" min="-360" max="360" step="1" value="0" style="width:100%"></div><div><label for="ts_temp_tau">Decay time / s</label><input id="ts_temp_tau" type="number" min="0.001" max="3600" step="0.1" value="5" style="width:100%"></div><div><label for="ts_temp_step">Step time / s</label><input id="ts_temp_step" type="number" min="0" max="3600" step="0.1" value="5" style="width:100%"></div></div></div><div class="seriesChannel"><h2>Lab test Bx / µT</h2><label for="ts_testX_type">Function</label><select id="ts_testX_type" style="width:100%"><option value="constant">Constant</option><option value="sine">Sinusoidal</option><option value="damped">Damped sinusoid</option><option value="noise">Noisy (bounded random)</option><option value="step">Step</option><option value="drift">Linear drift</option><option value="square">Square wave</option><option value="triangle">Triangle wave</option></select><div class="seriesPairs"><div><label for="ts_testX_min">Minimum</label><input id="ts_testX_min" type="number" min="-100" max="100" step="0.1" value="-50" style="width:100%"></div><div><label for="ts_testX_max">Maximum</label><input id="ts_testX_max" type="number" min="-100" max="100" step="0.1" value="50" style="width:100%"></div><div><label for="ts_testX_value">Constant value</label><input id="ts_testX_value" type="number" min="-100" max="100" step="0.1" value="0" style="width:100%"></div><div><label for="ts_testX_freq">Frequency / Hz</label><input id="ts_testX_freq" type="number" min="0.001" max="100" step="0.001" value="0.2" style="width:100%"></div><div><label for="ts_testX_phase">Phase / °</label><input id="ts_testX_phase" type="number" min="-360" max="360" step="1" value="0" style="width:100%"></div><div><label for="ts_testX_tau">Decay time / s</label><input id="ts_testX_tau" type="number" min="0.001" max="3600" step="0.1" value="5" style="width:100%"></div><div><label for="ts_testX_step">Step time / s</label><input id="ts_testX_step" type="number" min="0" max="3600" step="0.1" value="5" style="width:100%"></div></div></div><div class="seriesChannel"><h2>Lab test By / µT</h2><label for="ts_testY_type">Function</label><select id="ts_testY_type" style="width:100%"><option value="constant">Constant</option><option value="sine">Sinusoidal</option><option value="damped">Damped sinusoid</option><option value="noise">Noisy (bounded random)</option><option value="step">Step</option><option value="drift">Linear drift</option><option value="square">Square wave</option><option value="triangle">Triangle wave</option></select><div class="seriesPairs"><div><label for="ts_testY_min">Minimum</label><input id="ts_testY_min" type="number" min="-100" max="100" step="0.1" value="-50" style="width:100%"></div><div><label for="ts_testY_max">Maximum</label><input id="ts_testY_max" type="number" min="-100" max="100" step="0.1" value="50" style="width:100%"></div><div><label for="ts_testY_value">Constant value</label><input id="ts_testY_value" type="number" min="-100" max="100" step="0.1" value="0" style="width:100%"></div><div><label for="ts_testY_freq">Frequency / Hz</label><input id="ts_testY_freq" type="number" min="0.001" max="100" step="0.001" value="0.2" style="width:100%"></div><div><label for="ts_testY_phase">Phase / °</label><input id="ts_testY_phase" type="number" min="-360" max="360" step="1" value="0" style="width:100%"></div><div><label for="ts_testY_tau">Decay time / s</label><input id="ts_testY_tau" type="number" min="0.001" max="3600" step="0.1" value="5" style="width:100%"></div><div><label for="ts_testY_step">Step time / s</label><input id="ts_testY_step" type="number" min="0" max="3600" step="0.1" value="5" style="width:100%"></div></div></div><div class="seriesChannel"><h2>Lab test Bz / µT</h2><label for="ts_testZ_type">Function</label><select id="ts_testZ_type" style="width:100%"><option value="constant">Constant</option><option value="sine">Sinusoidal</option><option value="damped">Damped sinusoid</option><option value="noise">Noisy (bounded random)</option><option value="step">Step</option><option value="drift">Linear drift</option><option value="square">Square wave</option><option value="triangle">Triangle wave</option></select><div class="seriesPairs"><div><label for="ts_testZ_min">Minimum</label><input id="ts_testZ_min" type="number" min="-100" max="100" step="0.1" value="-50" style="width:100%"></div><div><label for="ts_testZ_max">Maximum</label><input id="ts_testZ_max" type="number" min="-100" max="100" step="0.1" value="50" style="width:100%"></div><div><label for="ts_testZ_value">Constant value</label><input id="ts_testZ_value" type="number" min="-100" max="100" step="0.1" value="0" style="width:100%"></div><div><label for="ts_testZ_freq">Frequency / Hz</label><input id="ts_testZ_freq" type="number" min="0.001" max="100" step="0.001" value="0.2" style="width:100%"></div><div><label for="ts_testZ_phase">Phase / °</label><input id="ts_testZ_phase" type="number" min="-360" max="360" step="1" value="0" style="width:100%"></div><div><label for="ts_testZ_tau">Decay time / s</label><input id="ts_testZ_tau" type="number" min="0.001" max="3600" step="0.1" value="5" style="width:100%"></div><div><label for="ts_testZ_step">Step time / s</label><input id="ts_testZ_step" type="number" min="0" max="3600" step="0.1" value="5" style="width:100%"></div></div></div></div><div class="controls"><div><label for="seriesDuration">Duration / s</label><input id="seriesDuration" type="number" min="0.1" max="3600" step="0.1" value="10"></div><div><label for="seriesDt">Sample interval / s</label><input id="seriesDt" type="number" min="0.001" max="60" step="0.001" value="0.05"></div><div><label for="seriesSpeed">Playback speed</label><select id="seriesSpeed"><option value="0.25">0.25×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="5">5×</option><option value="10">10×</option></select></div><div><label for="seriesSeed">Noise seed</label><input id="seriesSeed" type="number" min="1" max="2147483647" step="1" value="42"></div></div><div class="buttons"><button id="seriesCurrent">Use current constant values</button><button id="seriesDemo">Load example waveforms</button><button id="seriesRun">▶ Run</button><button id="seriesPause" disabled>Pause</button><button id="seriesStop" disabled>Stop</button><button id="seriesReset">Reset time</button><button id="seriesExport" disabled>Save time-series CSV</button><button id="seriesPng" disabled>Save traces PNG</button><button id="seriesPlPng">Save PL spectrum PNG</button><button id="recordRun">● Record new run (spectrum + traces)</button><button id="recordStop" disabled>Finish recording</button><a id="recordDownload" hidden>Download animation</a></div><p class="note" id="recordStatus" role="status">Animation export records a new run as a browser video (WebM or MP4, depending on browser support), including the PL spectrum, input waveforms and selected resonance traces. Keep this tab visible while recording. Playback speed sets the video timing; Pause/Resume also pauses/resumes capture. Recording stops after 120 seconds of wall time; simulation can continue.</p><p id="seriesError" class="note" role="alert" style="color:#ffb86b"></p><p id="seriesStatus" class="note" role="status">Ready · configure waveforms, then Run.</p><label><input id="seriesFollow" type="checkbox" checked> Follow resonances in the live PL spectrum (turn off to hold its frequency window)</label><canvas id="seriesInputs" style="width:100%;height:250px;display:block" aria-label="Temperature and lab test-field time traces, in four separately scaled panels"></canvas><div class="bar"><h2 id="resonance-tracking">Tracked resonance frequencies</h2><label for="seriesUnits">Plot <select id="seriesUnits" style="width:200px"><option value="shift">Shift from t = 0 / MHz</option><option value="absolute">Absolute frequency / GHz</option></select></label></div><div class="card" style="padding:14px;margin:12px 0;background:#0c1521"><label for="seriesTrackMode">Tracking mode</label><select id="seriesTrackMode" style="width:100%;max-width:380px"><option value="eight">Eight resonance centres (1–8)</option><option value="hyperfine">Individual hyperfine transitions (previous mode)</option></select><p class="note">Resonances 1–8 are ordered by frequency at t = 0. Each is represented by a central hyperfine transition of one electronic branch. Labels stay with their branches during the run; exact degeneracies and strongly mixed or dark branches can make the assignment ambiguous.</p><div class="buttons"><button data-res-set="2468">2468</button><button data-res-set="1357">1357</button><button data-res-set="1234">1234</button><button data-res-set="5678">5678</button><button data-res-set="12345678">All 8</button><button data-res-set="">None / custom</button></div><div class="buttons" id="resChoices"><label style="margin:0;padding:7px;border:1px solid var(--line);border-radius:6px"><input id="res1" type="checkbox" checked> R1</label><label style="margin:0;padding:7px;border:1px solid var(--line);border-radius:6px"><input id="res2" type="checkbox" checked> R2</label><label style="margin:0;padding:7px;border:1px solid var(--line);border-radius:6px"><input id="res3" type="checkbox" checked> R3</label><label style="margin:0;padding:7px;border:1px solid var(--line);border-radius:6px"><input id="res4" type="checkbox" checked> R4</label><label style="margin:0;padding:7px;border:1px solid var(--line);border-radius:6px"><input id="res5" type="checkbox" checked> R5</label><label style="margin:0;padding:7px;border:1px solid var(--line);border-radius:6px"><input id="res6" type="checkbox" checked> R6</label><label style="margin:0;padding:7px;border:1px solid var(--line);border-radius:6px"><input id="res7" type="checkbox" checked> R7</label><label style="margin:0;padding:7px;border:1px solid var(--line);border-radius:6px"><input id="res8" type="checkbox" checked> R8</label></div><label for="resCustom">Custom set (e.g. 2, 4, 6, 8 or pair 28)</label><input id="resCustom" type="text" value="12345678" maxlength="32" style="background:#0c1521;color:#fff;border:1px solid #395066;border-radius:6px;padding:8px;width:220px"><button id="resApply">Apply selection</button><p class="note" id="resInfo">Select any individual resonance or combination, including pairs. Display selection can change during or after a run; CSV and PNG use the selected traces.</p></div><div class="legend"><span><span class="dot" style="background:#6de4c0"></span>NV1</span><span><span class="dot" style="background:#70b6ff"></span>NV2</span><span><span class="dot" style="background:#ffb86b"></span>NV3</span><span><span class="dot" style="background:#d49bff"></span>NV4</span></div><canvas id="seriesPlot" style="width:100%;height:310px;display:block" aria-label="Tracked resonance frequencies versus simulation time"></canvas><p class="note">Constant uses its value. Sinusoidal/square/triangle waves span minimum to maximum. Damped oscillations decay toward their midpoint with envelope exp(−t/τ). Noise is bounded uniform sample-and-hold, updated at the selected frequency, with a reproducible seed. Step changes from minimum to maximum at the step time; drift ramps from minimum to maximum across the full duration. Frequency and phase apply to periodic functions; decay applies to damped and step time to step. Maximum 10,001 samples; periodic and noise inputs require at least 10 samples per cycle/update interval.</p><p class="note">Frequency branches are followed by maximum eigenstate overlap, rather than re-sorting peaks at every step. At exact degeneracies identities can be ambiguous. A tracked frequency can remain visible here even when its PL weight becomes negligible; CSV includes the instantaneous weight. Dynamics are quasi-static: no spin relaxation, detector bandwidth, thermal lag or field-coil response is simulated. Playback may slow on busy devices; calculated samples are never skipped.</p></section>
+<details class="card" id="resonance-table" open><summary>Resonances & field projections</summary><div style="overflow-x:auto"><table><thead><tr><th>NV axis</th><th>B∥ (mT)</th><th>PL-weighted transitions</th><th>Strongest frequencies (MHz)</th></tr></thead><tbody id="rows"></tbody></table></div><p class="note">All 36 pairs of the nine eigenstates are evaluated for each NV. Only non-negligible microwave coupling and brightness contrast contribute to the illustrative PL.</p></details><details class="card" id="individual-transitions"><summary>Individual transitions — click a frequency to inspect its hyperfine group</summary><div style="overflow-x:auto;max-height:400px"><table><thead><tr><th>NV</th><th>Eigenstate pair</th><th>Frequency (MHz)</th><th>Drive strength</th><th>ΔP₀²</th><th>PL weight</th></tr></thead><tbody id="transitionRows"></tbody></table></div><p class="note">Eigenstate indices are ordered by energy at the current field; they are not fixed mₛ labels. Drive strength = |⟨j|B̂₁·S|i⟩|², or its average over lab x, y, z. ΔP₀² is a qualitative optical-brightness proxy. PL weight = drive strength × ΔP₀²; this does not predict measured ODMR contrast. Frequencies below 1 Hz and PL weights below 10⁻⁸ are omitted.</p></details>
+<details class="card" id="physics-notes"><summary>Physics, conventions & limits</summary><p class="note">H/h = D S_z² + γe B·S − γn B·I + A∥ S_z I_z + A⊥ (S_x I_x + S_y I_y) + Q I_z². S = 1 and I = 1 (¹⁴N), with γe = 28.025 MHz/mT. Default constants: D = 2870 MHz, A∥ = −2.16 MHz, A⊥ = −2.70 MHz, Q = −4.95 MHz and γn = +3.077 MHz/T; the nuclear Zeeman term uses a minus sign. Each NV uses its own local frame. Its local x is chosen along the transverse static field, making H real without changing the physics; microwave polarization is transformed into the same frame. All eigenstate pairs are considered, including above the aligned ground-state crossing near 102.4 mT.</p><p class="note">Crystal axes: [111], [1 −1 −1], [−1 1 −1], [−1 −1 1], normalized in crystal coordinates and mapped into the selected surface frame, then rotated into the lab. For (001), surface-frame x ∥ [100]; for (110) and (111), x ∥ [1 −1 0]. Surface-frame y = normal × x. The crystal cube and all NV axes rotate together; the magnetic field remains in lab coordinates. θ is measured from +z; φ from +x toward +y. Rotate view changes only the camera: lab axes, diamond and field move together on screen, while field components and resonance frequencies stay fixed. Steer B changes the physical field. The cube follows crystal [100], [010], and [001] edges; the four NV axes follow its body diagonals. Selecting a cut aligns that crystallographic normal with lab z before the lab rotations are applied.</p><p class="note">PL is drawn as Lorentzian dips weighted by microwave coupling × (P₀,i − P₀,j)², with P₀ the electron mₛ = 0 probability in an eigenstate. A factor of 2/3 (including equal weighting of the three nuclear states) makes an isolated low-field, transverse linearly driven triplet sum to the contrast-scale setting. This phenomenological model assumes equal nuclear weighting and does not solve optical pumping, relaxation, nuclear polarization, excited-state anticrossings or saturation. At strong transverse fields and near crossings, actual fluorescence can differ greatly. Temperature changes D using P(TK) = 0.097 TK − 0.00037 TK² + 0.00000017 TK³ MHz, with D(T) = D(25 °C) + P(T + 273.15) − P(298.15). The Toyli cubic was fitted around 300–700 K; the 0–27 °C part is a short extrapolation, and the absolute offset is set by your D at 25 °C. Temperature dependence of hyperfine parameters, linewidth, optical brightness and relaxation is omitted. Test fields are added in lab coordinates in µT and converted to mT before solving the Hamiltonian. Strain, anisotropic g and noise are omitted. The gold D(T) line and grey D(25 °C) line are references, not generally resonances at nonzero field. At 1 T aligned with an NV, the main electronic transitions are near 25.155 and 30.895 GHz, split by hyperfine coupling.</p><p class="note">Reference: <a href="https://doi.org/10.1103/PhysRevB.79.075203" target="_blank" rel="noopener">Felton et al., Hyperfine interaction in the ground state of the negatively charged nitrogen vacancy center in diamond, Physical Review B 79, 075203 (2009)</a>. Parameters here are representative rounded values and can be edited above.</p><p class="note">Temperature reference: <a href="https://doi.org/10.1103/PhysRevX.2.031001" target="_blank" rel="noopener">Toyli et al., Measurement and Control of Single Nitrogen-Vacancy Center Spins above 600 K (2012)</a>.</p></details><footer><div style="margin-bottom:8px">© 2026 R. Tavakoli Dinani · MagLab</div>NV Simulation · V15 · 0–1 T · Simulation runs in your browser · Visitor statistics by GoatCounter<div style="margin-top:12px;display:inline-block;padding:10px 16px;border:1px solid var(--line);border-radius:10px;background:var(--panel)">Visitors · <strong id="visitorCount" aria-live="polite" style="color:var(--accent)">Loading…</strong></div></footer></main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id), RAD=Math.PI/180, colors=['#6de4c0','#70b6ff','#ffb86b','#d49bff'];
+const state={mag:Math.hypot(3.54,1.73,6.95),theta:Math.acos(6.95/Math.hypot(3.54,1.73,6.95))/RAD,phi:Math.atan2(1.73,3.54)/RAD,width:1.3,contrast:2,D:2870,apar:-2.16,aperp:-2.7,quad:-4.95,gammaN:3.077,temp:25,testX:0,testY:0,testZ:0,mwTheta:90,mwPhi:0,rotation:45,tiltY:0,tiltX:0};
+const enabled=[true,true,true,true];let lines=[],axes=[],B=[],range=null,view=[],pending=false;
+const camera={yaw:0,pitch:0,zoom:1};let interaction='view',b1Handle=null;
+let cut='001',mwMode='isotropic';
+function thermalPolynomial(celsius){const t=celsius+273.15;return .097*t-.00037*t*t+.00000017*t*t*t}
+function effectiveD(){return state.D+thermalPolynomial(state.temp)-thermalPolynomial(25)}
+function temperatureSlope(){const t=state.temp+273.15;return 1000*(.097-.00074*t+.00000051*t*t)}
+let biasB=[0,0,0];
+const dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0);
+const unit=v=>v.map(x=>x/Math.hypot(...v));
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+function cutBasis(){let n=unit(cut==='111'?[1,1,1]:cut==='110'?[1,1,0]:[0,0,1]),u=unit(cut==='001'?[1,0,0]:[1,-1,0]);return [u,cross(n,u),n]}
+function labRotate([x,y,z]){let a=state.tiltX*RAD,b=state.tiltY*RAD,c=state.rotation*RAD;[y,z]=[y*Math.cos(a)-z*Math.sin(a),y*Math.sin(a)+z*Math.cos(a)];[x,z]=[x*Math.cos(b)+z*Math.sin(b),-x*Math.sin(b)+z*Math.cos(b)];return [x*Math.cos(c)-y*Math.sin(c),x*Math.sin(c)+y*Math.cos(c),z]}
+function crystalToLab(v){return labRotate(cutBasis().map(row=>dot(row,v)))}
+// Real symmetric Jacobi eigensystem, eigenvectors stored as columns.
+// Rotating each local transverse axis onto B_perp makes the full S=1, I=1 H real.
+function eigensystem(matrix){
+ const n=matrix.length,a=matrix.map(r=>r.slice()),v=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>+(i===j)));
+ for(let it=0;it<4000;it++){
+  let p=0,q=1,max=0;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)if(Math.abs(a[i][j])>max){max=Math.abs(a[i][j]);p=i;q=j}
+  if(max<1e-10)break;
+  if(it===3999)throw Error('Eigensolver did not converge');
+  const angle=.5*Math.atan2(2*a[p][q],a[q][q]-a[p][p]),c=Math.cos(angle),s=Math.sin(angle),ap=a[p][p],aq=a[q][q],off=a[p][q];
+  for(let k=0;k<n;k++){
+   if(k!==p&&k!==q){let x=a[k][p],y=a[k][q];a[k][p]=a[p][k]=c*x-s*y;a[k][q]=a[q][k]=s*x+c*y}
+   let x=v[k][p],y=v[k][q];v[k][p]=c*x-s*y;v[k][q]=s*x+c*y;
+  }
+  a[p][p]=c*c*ap-2*s*c*off+s*s*aq;a[q][q]=s*s*ap+2*s*c*off+c*c*aq;a[p][q]=a[q][p]=0;
+ }
+ const order=Array.from({length:n},(_,i)=>i).sort((i,j)=>a[i][i]-a[j][j]);
+ return {values:order.map(i=>a[i][i]),vectors:order.map(i=>v.map(row=>row[i]))};
+}
+const ident=[[1,0,0],[0,1,0],[0,0,1]],spinX=[[0,Math.SQRT1_2,0],[Math.SQRT1_2,0,Math.SQRT1_2],[0,Math.SQRT1_2,0]],spinY=[[0,-Math.SQRT1_2,0],[Math.SQRT1_2,0,-Math.SQRT1_2],[0,Math.SQRT1_2,0]],spinZ=[[1,0,0],[0,0,0],[0,0,-1]];
+function kron(a,b){return Array.from({length:9},(_,i)=>Array.from({length:9},(_,j)=>a[Math.floor(i/3)][Math.floor(j/3)]*b[i%3][j%3]))}
+const SX=kron(spinX,ident),SY=kron(spinY,ident),SZ=kron(spinZ,ident),IX=kron(ident,spinX),IZ=kron(ident,spinZ),ZZ=kron(spinZ,spinZ),XX=kron(spinX,spinX),YY=kron(spinY,spinY);
+function hamiltonian(bp,bt){return Array.from({length:9},(_,i)=>Array.from({length:9},(_,j)=>{
+ const ms=1-Math.floor(i/3),mi=1-i%3;
+ return (i===j?effectiveD()*ms*ms+state.quad*mi*mi:0)+28.025*(bp*SZ[i][j]+bt*SX[i][j])-state.gammaN/1000*(bp*IZ[i][j]+bt*IX[i][j])+state.apar*ZZ[i][j]+state.aperp*(XX[i][j]-YY[i][j]);
+}))}
+function matrixElement(a,op,b){let val=0;for(let i=0;i<9;i++)for(let j=0;j<9;j++)val+=a[i]*op[i][j]*b[j];return val}
+function mwDirection(){const t=state.mwTheta*RAD,p=state.mwPhi*RAD;return [Math.sin(t)*Math.cos(p),Math.sin(t)*Math.sin(p),Math.cos(t)]}
+let physicsKey='',drive=[];
+function physics(){
+ const key=JSON.stringify([state.mag,state.theta,state.phi,state.rotation,state.tiltX,state.tiltY,state.D,state.apar,state.aperp,state.quad,state.gammaN,state.temp,state.testX,state.testY,state.testZ,state.mwTheta,state.mwPhi,cut,mwMode]);
+ if(key===physicsKey)return;physicsKey=key;
+ const t=state.theta*RAD,p=state.phi*RAD;biasB=[state.mag*Math.sin(t)*Math.cos(p),state.mag*Math.sin(t)*Math.sin(p),state.mag*Math.cos(t)];B=biasB.map((v,i)=>v+[state.testX,state.testY,state.testZ][i]/1000);
+ axes=[[1,1,1],[1,-1,-1],[-1,1,-1],[-1,-1,1]].map(v=>crystalToLab(unit(v)));drive=mwDirection();
+ lines=axes.map(n=>lineAtField(B,n,drive));
+}
+function lineAtField(field,n,drive){
+  const bp=dot(n,field),transverse=field.map((v,i)=>v-bp*n[i]);let bt=Math.hypot(...transverse),x;
+  if(bt>1e-9)x=unit(transverse);else{bt=0;const ref=Math.abs(n[2])<.9?[0,0,1]:[1,0,0];x=unit(cross(ref,n))}
+  const y=cross(n,x),mw=[dot(drive,x),dot(drive,y),dot(drive,n)],H=hamiltonian(bp,bt),e=eigensystem(H);
+  const brightness=e.vectors.map(v=>v.slice(3,6).reduce((sum,a)=>sum+a*a,0)),transitions=[];
+  for(let i=0;i<9;i++)for(let j=i+1;j<9;j++){
+   const f=e.values[j]-e.values[i];if(f<1e-6)continue;
+   const sx=matrixElement(e.vectors[i],SX,e.vectors[j]),sy=matrixElement(e.vectors[i],SY,e.vectors[j]),sz=matrixElement(e.vectors[i],SZ,e.vectors[j]);
+   const strength=mwMode==='isotropic'?(sx*sx+sy*sy+sz*sz)/3:(mw[0]*sx+mw[2]*sz)**2+(mw[1]*sy)**2;
+   const brightnessContrast=(brightness[i]-brightness[j])**2,weight=strength*brightnessContrast;
+   if(weight>1e-8)transitions.push({f,i,j,strength,brightnessContrast,weight});
+  }
+  transitions.sort((a,b)=>a.f-b.f);return {bp,bt,transitions,energies:e.values,brightness,eigenvectors:e.vectors,frameX:x,frameY:y};
+}
+
+function spectrumChannels(f){return lines.map((line,i)=>{
+ if(!enabled[i])return 100;let dip=0;
+ for(const tr of line.transitions)dip+=(2/3)*state.contrast*tr.weight/(1+4*((f-tr.f)/state.width)**2);
+ return 100-dip;
+})}
+function spectrum(f,only=-1){const values=spectrumChannels(f);return only<0?100-values.reduce((sum,v)=>sum+100-v,0):values[only]}
+function activeTransitions(){return lines.flatMap((l,i)=>enabled[i]?l.transitions:[])}
+
+function canvas(id){let cv=$(id),dpr=window.devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);let c=cv.getContext('2d');c.scale(dpr,dpr);return{c,w,h}}
+function arrow(c,a,b,color,label){c.strokeStyle=color;c.fillStyle=color;c.lineWidth=2;c.beginPath();c.moveTo(...a);c.lineTo(...b);c.stroke();let angle=Math.atan2(b[1]-a[1],b[0]-a[0]);c.beginPath();c.moveTo(...b);c.lineTo(b[0]-10*Math.cos(angle-.4),b[1]-10*Math.sin(angle-.4));c.lineTo(b[0]-10*Math.cos(angle+.4),b[1]-10*Math.sin(angle+.4));c.closePath();c.fill();c.font='13px system-ui';c.fillText(label,b[0]+8,b[1]-8)}
+function cameraRotate([x,y,z]){let a=camera.yaw*RAD,b=camera.pitch*RAD;[x,y]=[x*Math.cos(a)-y*Math.sin(a),x*Math.sin(a)+y*Math.cos(a)];return [x,y*Math.cos(b)-z*Math.sin(b),y*Math.sin(b)+z*Math.cos(b)]}
+function scene(){let {c,w,h}=canvas('field'),scale=Math.min(w*.23,h*.33),origin=[w/2,h*.54];let proj=v=>{let [x,y,z]=cameraRotate(v);return [origin[0]+scale*camera.zoom*(.86*x-.62*y),origin[1]+scale*camera.zoom*(.32*x+.44*y-.96*z)]};let grad=c.createRadialGradient(...origin,0,...origin,scale*2);grad.addColorStop(0,'#203b48');grad.addColorStop(1,'#121d2b');c.fillStyle=grad;c.fillRect(0,0,w,h);c.strokeStyle='#2c4656';c.lineWidth=1;for(let i=-3;i<=3;i++){c.beginPath();c.moveTo(...proj([i/2,-1.5,0]));c.lineTo(...proj([i/2,1.5,0]));c.stroke();c.beginPath();c.moveTo(...proj([-1.5,i/2,0]));c.lineTo(...proj([1.5,i/2,0]));c.stroke()}for(let i=0;i<3;i++){let a=[0,0,0];a[i]=1.5;arrow(c,origin,proj(a),'#5e778c',['x lab','y lab','z lab'][i])}const half=.65;
+const corners=[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]];
+const points=corners.map(v=>proj(crystalToLab(v.map(x=>x*half))));
+c.fillStyle='#6de4c00c';
+for(const face of [[0,1,2,3],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]]){
+c.beginPath();face.forEach((j,i)=>i?c.lineTo(...points[j]):c.moveTo(...points[j]));c.closePath();c.fill()}
+c.strokeStyle='#77bac4aa';c.lineWidth=1.5;
+for(const [a,b] of [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]]){
+c.beginPath();c.moveTo(...points[a]);c.lineTo(...points[b]);c.stroke()}
+axes.forEach((n,i)=>{if(!enabled[i])return;
+const tip=n.map(v=>v*half*Math.sqrt(3)),opposite=tip.map(v=>-v);
+c.strokeStyle=colors[i];c.lineWidth=1.5;c.globalAlpha=.55;c.setLineDash([4,4]);c.beginPath();c.moveTo(...proj(opposite));c.lineTo(...origin);c.stroke();c.setLineDash([]);c.globalAlpha=1;
+arrow(c,origin,proj(tip),colors[i],'NV'+(i+1))});
+{const totalMag=Math.hypot(...B);if(totalMag>0){let length=.65+.9*Math.log1p(totalMag)/Math.log1p(1000);arrow(c,origin,proj(B.map(v=>v/totalMag*length)),'#ffffff','B total')}}{const tip=proj(mwDirection().map(v=>v*1.35)),active=mwMode==='linear';b1Handle=tip;
+c.save();if(!active){c.globalAlpha=.55;c.setLineDash([5,4])}
+arrow(c,origin,tip,active?'#ff85a1':'#8a869d',active?'B₁ MW':'B₁ guide');c.restore();
+c.beginPath();c.arc(...tip,7,0,2*Math.PI);c.fillStyle=active?'#ff85a1':'#8a869d';c.fill();c.strokeStyle='#edf4fa';c.lineWidth=1.5;c.stroke()}c.beginPath();c.arc(...origin,4,0,2*Math.PI);c.fillStyle='#fff';c.fill()}
+let spectrumFrame=null;
+function plot(id='plot'){
+ const mini=id==='miniPlot';
+ const {c,w,h}=canvas(id);c.fillStyle='#121d2b';c.fillRect(0,0,w,h);
+ const left=58,right=w-18,top=26,bottom=h-47,tr=activeTransitions(),peak=Math.max(0,...tr.map(t=>t.weight)),fs=tr.filter(t=>t.weight>=peak*1e-3).map(t=>t.f);
+ if(!range){const lo=fs.length?Math.min(...fs):effectiveD()-10,hi=fs.length?Math.max(...fs):effectiveD()+10,pad=Math.max(8,(hi-lo)*.05);view=[Math.max(0,lo-pad),Math.min(65000,hi+pad)]}else view=range.slice();
+ const span=view[1]-view[0],ghz=span>1500,fmt=f=>ghz?(f/1000).toFixed(mini?2:3):f.toFixed(mini?1:2);
+ // Reuse the same numerical spectrum in the full and compact plots.
+ if(!mini||!spectrumFrame){
+  const samples=new Set([view[0],view[1]]),N=Math.max(1200,Math.ceil(w*2));
+  for(let i=0;i<=N;i++)samples.add(view[0]+span*i/N);
+  for(const t of tr)for(const k of [-12,-6,-3,-2,-1,-.5,-.25,0,.25,.5,1,2,3,6,12]){const f=t.f+k*state.width;if(f>=view[0]&&f<=view[1])samples.add(f)}
+  const frequencies=[...samples].sort((a,b)=>a-b),channels=frequencies.map(spectrumChannels),total=channels.map(v=>100-v.reduce((sum,y)=>sum+100-y,0));
+  spectrumFrame={frequencies,channels,total,ymin:Math.min(99,Math.min(...total)-.35),ymax:100.25};
+ }
+ const {frequencies,channels,total,ymin,ymax}=spectrumFrame,xx=f=>left+(f-view[0])/span*(right-left),yy=y=>bottom-(y-ymin)/(ymax-ymin)*(bottom-top);
+ c.font='11px system-ui';for(let i=0;i<=4;i++){const y=ymin+(ymax-ymin)*i/4;c.strokeStyle='#253749';c.beginPath();c.moveTo(left,yy(y));c.lineTo(right,yy(y));c.stroke();c.fillStyle='#9cafc2';c.textAlign='right';c.fillText(y.toFixed(1),left-9,yy(y)+4)}
+ for(let i=0;i<=(mini?4:6);i++){const f=view[0]+span*i/(mini?4:6);c.fillStyle='#9cafc2';c.textAlign='center';c.fillText(fmt(f),xx(f),bottom+20)}
+ c.save();c.beginPath();c.rect(left,top,right-left,bottom-top);c.clip();
+ for(let axis=0;axis<4;axis++){if(!enabled[axis])continue;c.strokeStyle=colors[axis];c.globalAlpha=.65;c.lineWidth=1;c.beginPath();frequencies.forEach((f,i)=>i?c.lineTo(xx(f),yy(channels[i][axis])):c.moveTo(xx(f),yy(channels[i][axis])));c.stroke()}
+ c.globalAlpha=1;c.strokeStyle='#fff';c.lineWidth=2;c.beginPath();frequencies.forEach((f,i)=>i?c.lineTo(xx(f),yy(total[i])):c.moveTo(xx(f),yy(total[i])));c.stroke();
+ const currentD=effectiveD();if(Math.abs(currentD-state.D)>.000001&&state.D>=view[0]&&state.D<=view[1]){c.strokeStyle='#7c91a5';c.lineWidth=1;c.setLineDash([2,4]);c.beginPath();c.moveTo(xx(state.D),top);c.lineTo(xx(state.D),bottom);c.stroke();c.setLineDash([])}
+ const inside=currentD>=view[0]&&currentD<=view[1];if(inside){c.strokeStyle='#ffd369';c.lineWidth=1.5;c.setLineDash([6,4]);c.beginPath();c.moveTo(xx(currentD),top);c.lineTo(xx(currentD),bottom);c.stroke();c.setLineDash([])}c.restore();
+ c.fillStyle='#ffd369';c.textAlign=inside?'center':'right';c.fillText('D(T) = '+(currentD/1000).toFixed(6)+' GHz'+(inside?'':' (outside view)'),inside?Math.max(left+100,Math.min(right-100,xx(currentD))):right,15);
+ c.fillStyle='#9cafc2';c.textAlign='center';c.fillText('Microwave frequency ('+(ghz?'GHz':'MHz')+')',(left+right)/2,h-6);c.save();c.translate(13,(top+bottom)/2);c.rotate(-Math.PI/2);c.fillText(mini?'PL (%)':'Illustrative normalized PL (%)',0,0);c.restore();
+ $('fmin').value=view[0].toFixed(3);$('fmax').value=view[1].toFixed(3);
+}
+function render(){
+ pending=false;physics();for(const key of Object.keys(state)){
+  $(key).value=state[key];if($(key+'V'))$(key+'V').textContent=state[key].toFixed(key==='width'?2:1)+(key==='temp'?' °C':key.startsWith('test')?' µT':key==='theta'||key==='phi'||key==='mwTheta'||key==='mwPhi'?'°':key==='contrast'?'%':' MHz');
+ }
+ for(const k of ['temp','testX','testY','testZ'])$(k+'N').value=state[k].toFixed(1);$('environmentInfo').textContent=`D(T) = ${effectiveD().toFixed(6)} MHz · ΔD from 25 °C = ${(effectiveD()-state.D).toFixed(6)} MHz · dD/dT = ${temperatureSlope().toFixed(2)} kHz/°C. Total lab field = [${B.map(v=>(v*1000).toFixed(2)).join(', ')}] µT. Gold line: D(T); dotted grey: D at 25 °C.`;
+ $('magN').value=state.mag.toFixed(3);$('teslaValue').textContent=(state.mag/1000).toFixed(6)+' T · maximum 1 T';
+ const selected=+$('fieldScale').value||20,limit=state.mag>selected?(state.mag<=200?200:1000):selected;$('fieldScale').value=limit;$('mag').max=limit;
+ for(const k of ['rotation','tiltY','tiltX'])$(k+'N').value=state[k];$('cut').value=cut;
+ const normal=labRotate([0,0,1]);$('crystalInfo').textContent=`Surface normal in lab: [${normal.map(v=>v.toFixed(3)).join(', ')}]. Zero-rotation lab x ∥ crystal ${cut==='001'?'[100]':'[1 −1 0]'}.`;
+ ['bx','by','bz'].forEach((id,i)=>$(id).textContent=B[i].toFixed(3));
+ $('mwTheta').disabled=$('mwPhi').disabled=TS.running;$('mwMode').value=mwMode;$('b1PanelInfo').textContent=(mwMode==='linear'?'Active linear polarization. ':'Guide angles; adjust a slider to activate linear polarization. ')+'Angles are in the lab frame: θ₁ from +z, φ₁ from +x toward +y.';
+ $('mwInfo').textContent=mwMode==='linear'?`Linear B₁ in lab: [${drive.map(v=>v.toFixed(3)).join(', ')}]. Pink B₁ MW arrow shows the microwave magnetic-field direction. Drag its round tip, or select Steer B₁ and drag in the 3D view. Its amplitude is not modeled.`:'Average of three orthogonal linear microwave directions. The grey B₁ guide is inactive; dragging its tip or selecting Steer B₁ activates linear polarization.';
+ $('rows').innerHTML=lines.map((l,i)=>{const strong=l.transitions.slice().sort((a,b)=>b.weight-a.weight).slice(0,6).sort((a,b)=>a.f-b.f);return `<tr><td style="color:${colors[i]}">NV${i+1}${enabled[i]?'':' (hidden)'}</td><td>${l.bp.toFixed(4)}</td><td>${l.transitions.length}</td><td>${strong.map(t=>`<button data-frequency="${t.f}" title="Zoom around this transition">${t.f.toFixed(3)}</button>`).join(' ')||'No PL-weighted transitions'}</td></tr>`}).join('');
+ $('transitionRows').innerHTML=lines.flatMap((l,i)=>l.transitions.map(t=>`<tr><td style="color:${colors[i]}">NV${i+1}${enabled[i]?'':' (hidden)'}</td><td>${t.i+1} ↔ ${t.j+1}</td><td><button data-frequency="${t.f}" title="Zoom around this transition">${t.f.toFixed(6)}</button></td><td>${t.strength.toExponential(3)}</td><td>${t.brightnessContrast.toFixed(5)}</td><td>${t.weight.toExponential(3)}</td></tr>`)).join('');
+ $('status').textContent=`Full 9 × 9 ¹⁴N Hamiltonian · ${activeTransitions().length} PL-weighted transitions · white: total PL`;
+ $('warning').textContent='PL amplitudes are illustrative (microwave strength × spin-brightness contrast); optical pumping and relaxation are not modeled. '+(state.mag>80?'High-field spin mixing and crossings can strongly change actual ODMR visibility. ':'')+'Auto-fit uses transitions above 0.1% of the strongest PL weight; weaker lines remain in the table and appear if in view. Zoom or click a transition frequency to inspect hyperfine structure.';
+ scene();plot();plot('miniPlot');drawSeries();
+}
+
+function request(){if(!pending){pending=true;requestAnimationFrame(render)}}
+for(let key of Object.keys(state))$(key).addEventListener('input',e=>{const input=e.target;if(input.value===''||!Number.isFinite(+input.value)||+input.value<+input.min||+input.value>+input.max)return;if(['temp','testX','testY','testZ'].includes(key)&&!range)range=view.slice();state[key]=+input.value;if(key==='mwTheta'||key==='mwPhi'){mwMode='linear';$('mwMode').value='linear'}request()});$('magN').addEventListener('input',e=>{if(e.target.value!==''&&Number.isFinite(+e.target.value)){state.mag=Math.max(0,Math.min(1000,+e.target.value));request()}});
+$('cut').onchange=e=>{cut=e.target.value;range=null;request()};
+for(let k of ['rotation','tiltY','tiltX'])$(k+'N').oninput=e=>{if(e.target.value!==''&&Number.isFinite(+e.target.value)){state[k]=Math.max(-180,Math.min(180,+e.target.value));request()}};
+$('crystal111').onclick=()=>{cut='111';state.rotation=45;state.tiltY=state.tiltX=0;range=null;request()};
+$('crystalReset').onclick=()=>{state.rotation=state.tiltY=state.tiltX=0;range=null;request()};
+for(const key of ['temp','testX','testY','testZ'])$(key+'N').oninput=e=>{const v=e.target.value;if(v===''||!Number.isFinite(+v)||+v<+e.target.min||+v>+e.target.max)return;if(!range)range=view.slice();state[key]=+v;request()};
+$('resetEnvironment').onclick=()=>{if(!range)range=view.slice();Object.assign(state,{temp:25,testX:0,testY:0,testZ:0});request()};
+$('zeroTests').onclick=()=>{if(!range)range=view.slice();Object.assign(state,{testX:0,testY:0,testZ:0});request()};
+$('fieldScale').onchange=e=>{const limit=+e.target.value;state.mag=Math.min(state.mag,limit);$('mag').max=limit;range=null;request()};
+$('mwMode').onchange=e=>{mwMode=e.target.value;if(mwMode!=='linear'&&interaction==='mw')setInteraction('view');request()};
+function alignNV1(magnitude){state.mag=magnitude;physics();state.theta=Math.acos(Math.max(-1,Math.min(1,axes[0][2])))/RAD;state.phi=(Math.atan2(axes[0][1],axes[0][0])/RAD+360)%360;range=null;request()}
+$('oneTesla').onclick=()=>alignNV1(1000);$('crossing').onclick=()=>alignNV1(102.4);
+$('resetModel').onclick=()=>{Object.assign(state,{D:2870,apar:-2.16,aperp:-2.7,quad:-4.95,gammaN:3.077});range=null;request()};
+$('applyRange').onclick=()=>{const lo=+$('fmin').value,hi=+$('fmax').value;if($('fmin').value===''||$('fmax').value===''||!Number.isFinite(lo)||!Number.isFinite(hi)||lo<0||hi>65000||hi-lo<.001){$('rangeError').textContent='Choose 0 ≤ minimum < maximum ≤ 65000 MHz, with at least 0.001 MHz span.';return}$('rangeError').textContent='';range=[lo,hi];request()};
+function inspectTransition(e){const button=e.target.closest('[data-frequency]');if(!button)return;const f=+button.dataset.frequency,pad=Math.max(8,5*state.width);range=[Math.max(0,f-pad),Math.min(65000,f+pad)];$('rangeError').textContent='';request();$('plot').scrollIntoView({behavior:'smooth',block:'center'})}
+$('rows').onclick=$('transitionRows').onclick=inspectTransition;
+$('legend').innerHTML=colors.map((color,i)=>`<label><input type="checkbox" checked data-axis="${i}"><span class="dot" style="background:${color}"></span>NV${i+1}</label>`).join('')+'<span class="muted">— Total PL</span>';$('legend').onchange=e=>{enabled[+e.target.dataset.axis]=e.target.checked;request()};
+document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{let p=b.dataset.preset;if(p==='lab'){state.mag=Math.hypot(3.54,1.73,6.95);state.theta=Math.acos(6.95/state.mag)/RAD;state.phi=Math.atan2(1.73,3.54)/RAD}else if(p==='z'){state.theta=0;state.phi=0}else if(p==='nv'){physics();state.theta=Math.acos(Math.max(-1,Math.min(1,axes[0][2])))/RAD;state.phi=(Math.atan2(axes[0][1],axes[0][0])/RAD+360)%360}else state.mag=0;range=null;request()});
+function setInteraction(mode){
+ if(mode==='mw'){mwMode='linear';$('mwMode').value='linear'}
+ interaction=mode;for(const [id,value] of [['orbitMode','view'],['fieldMode','field'],['b1Mode','mw']])$(id).setAttribute('aria-pressed',String(mode===value));
+ $('sceneHint').textContent=mode==='view'?'Drag to rotate view · scroll to zoom · drag B₁ tip to steer microwaves':mode==='mw'?'Drag to steer B₁ · linear polarization active · scroll to zoom':'Drag to steer static bias B · scroll to change |B|';
+}
+$('orbitMode').onclick=()=>setInteraction('view');$('fieldMode').onclick=()=>setInteraction('field');$('b1Mode').onclick=()=>{setInteraction('mw');request()};$('b1Hand').onclick=()=>{setInteraction('mw');request();$('field').scrollIntoView({behavior:'smooth',block:'center'})};$('b1Linear').onclick=()=>{mwMode='linear';request()};
+$('resetView').onclick=()=>{camera.yaw=camera.pitch=0;camera.zoom=1;request()};
+let drag=null;
+$('field').onpointerdown=e=>{
+ const rect=$('field').getBoundingClientRect(),onB1=b1Handle&&Math.hypot(e.clientX-rect.left-b1Handle[0],e.clientY-rect.top-b1Handle[1])<20;
+ if(onB1&&!TS.running){setInteraction('mw');request()}
+ drag={x:e.clientX,y:e.clientY,t:state.theta,p:state.phi,mwt:state.mwTheta,mwp:state.mwPhi,yaw:camera.yaw,pitch:camera.pitch,mode:interaction};
+ $('field').setPointerCapture(e.pointerId);$('field').style.cursor='grabbing';
+};
+$('field').onpointermove=e=>{
+ if(!drag)return;const dx=(e.clientX-drag.x)*.5,dy=(e.clientY-drag.y)*.5;
+ if(drag.mode==='view'){camera.yaw=drag.yaw+dx;camera.pitch=drag.pitch+dy}
+ else if(drag.mode==='mw'){state.mwPhi=((drag.mwp+dx)%360+360)%360;state.mwTheta=Math.max(0,Math.min(180,drag.mwt+dy))}
+ else{state.phi=((drag.p+dx)%360+360)%360;state.theta=Math.max(0,Math.min(180,drag.t+dy))}
+ request();
+};
+$('field').onpointerup=$('field').onpointercancel=$('field').onlostpointercapture=()=>{drag=null;$('field').style.cursor='grab'};
+$('field').addEventListener('wheel',e=>{e.preventDefault();if(interaction==='view'||interaction==='mw')camera.zoom=Math.max(.45,Math.min(2.5,camera.zoom*Math.exp(-e.deltaY*.001)));else state.mag=Math.max(0,Math.min(1000,state.mag-e.deltaY*.005));request()},{passive:false});
+$('field').addEventListener('keydown',e=>{
+ let handled=true;
+ if(interaction==='mw'&&['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){
+ if(e.key==='ArrowLeft')state.mwPhi=(state.mwPhi+355)%360;else if(e.key==='ArrowRight')state.mwPhi=(state.mwPhi+5)%360;else if(e.key==='ArrowUp')state.mwTheta=Math.max(0,state.mwTheta-5);else state.mwTheta=Math.min(180,state.mwTheta+5);
+ }else if(e.key==='ArrowLeft')camera.yaw-=5;else if(e.key==='ArrowRight')camera.yaw+=5;else if(e.key==='ArrowUp')camera.pitch-=5;else if(e.key==='ArrowDown')camera.pitch+=5;else if(e.key==='+'||e.key==='=')camera.zoom=Math.min(2.5,camera.zoom*1.1);else if(e.key==='-')camera.zoom=Math.max(.45,camera.zoom/1.1);else handled=false;
+ if(handled){e.preventDefault();request()}
+});
+
+function zoom(factor,anchor=.5){let center=view[0]+(view[1]-view[0])*anchor,span=Math.min(65000,Math.max(.3,(view[1]-view[0])*factor));let lo=Math.max(0,Math.min(65000-span,center-span*anchor));range=[lo,lo+span];request()}$('fit').onclick=()=>{range=null;request()};$('zoom').onclick=()=>zoom(.5);$('out').onclick=()=>zoom(2);$('plot').addEventListener('wheel',e=>{e.preventDefault();let rect=$('plot').getBoundingClientRect(),anchor=Math.max(0,Math.min(1,(e.clientX-rect.left-58)/(rect.width-76)));zoom(e.deltaY>0?1.15:1/1.15,anchor)},{passive:false});
+
+const seriesKeys=['temp','testX','testY','testZ'];
+const seriesNames=['Temperature / °C','Lab Bx / µT','Lab By / µT','Lab Bz / µT'];
+const TS={running:false,paused:false,records:[],tracks:[],previous:null,plan:null,next:0,target:0,lastWall:0,generation:0,locked:[],lockStates:[],status:'Ready · configure waveforms, then Run.'};
+function seededNoise(seed,index,channel){let x=(seed^Math.imul(index+1,0x9e3779b1)^Math.imul(channel+1,0x85ebca6b))>>>0;x=Math.imul(x^(x>>>16),0x7feb352d);x=Math.imul(x^(x>>>15),0x846ca68b);return ((x^(x>>>16))>>>0)/4294967295}
+function seriesValue(config,t,duration,seed,channel){
+ const {type,min,max,value,freq,phase,tau,step}=config,mid=(min+max)/2,amp=(max-min)/2,angle=2*Math.PI*freq*t+phase*RAD;
+ if(type==='constant')return value;
+ if(type==='step')return t+1e-10>=step?max:min;
+ if(type==='drift')return min+(max-min)*Math.max(0,Math.min(1,t/duration));
+ if(type==='noise')return min+(max-min)*seededNoise(seed,Math.floor(t*freq+1e-10),channel);
+ if(type==='damped')return mid+amp*Math.exp(-t/tau)*Math.sin(angle);
+ if(type==='square')return Math.sin(angle)>=0?max:min;
+ if(type==='triangle')return mid+amp*2/Math.PI*Math.asin(Math.sin(angle));
+ return mid+amp*Math.sin(angle);
+}
+let uploadedRows=null,uploadedName='';
+function csvCells(line,lineNumber){
+ const cells=[];let cell='',quoted=false,closed=false;
+ for(let i=0;i<line.length;i++){const ch=line[i];if(quoted){if(ch==='"'){if(line[i+1]==='"'){cell+='"';i++}else{quoted=false;closed=true}}else cell+=ch}
+ else if(ch===','){cells.push(cell.trim());cell='';closed=false}
+ else if(ch==='"'){if(cell.trim()||closed)throw Error('Line '+lineNumber+': unexpected quote.');quoted=true;cell=''}
+ else{if(closed&&ch.trim())throw Error('Line '+lineNumber+': text after closing quote.');cell+=ch}}
+ if(quoted)throw Error('Line '+lineNumber+': unclosed quote.');cells.push(cell.trim());return cells;
+}
+function parseUploadedCsv(text){
+ if(typeof text!=='string')throw Error('Could not read CSV text.');
+ const data=text.replace(/^\uFEFF/,'').split(/\r\n|\n|\r/).map((line,i)=>({line:line.trim(),number:i+1})).filter(r=>r.line&&!r.line.startsWith('#'));
+ if(data.length<3)throw Error('Include the header and at least two data rows.');
+ const expected=['time_s','temperature_C','Bx_uT','By_uT','Bz_uT'],header=csvCells(data[0].line,data[0].number);
+ if(header.length!==5||header.some((v,i)=>v!==expected[i]))throw Error('Header must be: '+expected.join(','));
+ if(data.length-1>10001)throw Error('Maximum 10,001 data rows.');
+ const numeric=/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
+ const rows=data.slice(1).map(({line,number})=>{const cells=csvCells(line,number);if(cells.length!==5)throw Error('Line '+number+': expected exactly five columns.');if(cells.some(v=>!numeric.test(v)||!Number.isFinite(Number(v))))throw Error('Line '+number+': all five cells must contain finite decimal numbers.');const row=cells.map(Number);if(row[0]<0||row[0]>3600)throw Error('Line '+number+': time must be 0–3600 s.');if(row[1]<0||row[1]>200)throw Error('Line '+number+': temperature must be 0–200 °C.');if(row.slice(2).some(v=>v< -100||v>100))throw Error('Line '+number+': each test-field component must be within ±100 µT.');return row});
+ if(rows[0][0]!==0)throw Error('The first time value must be 0 s.');
+ for(let i=1;i<rows.length;i++)if(rows[i][0]<=rows[i-1][0])throw Error('Times must increase strictly; duplicate or decreasing time at data row '+(i+1)+'.');
+ if(rows[rows.length-1][0]<.1)throw Error('Final time must be at least 0.1 s.');return rows;
+}
+function syncSeriesSource(){
+ const file=$('seriesSource').value==='csv';$('csvUploadPanel').hidden=!file;$('seriesGenerators').hidden=file;
+ // A CSS display:grid rule must not override the hidden attribute.
+ $('seriesGenerators').style.display=file?'none':'';
+ $('seriesDuration').disabled=$('seriesDt').disabled=file;
+ if(file&&uploadedRows)$('seriesDuration').value=uploadedRows[uploadedRows.length-1][0];
+}
+function installUploadedCsv(text,name){
+ if(TS.running)throw Error('Stop playback before loading new data.');
+ const rows=parseUploadedCsv(text);uploadedRows=rows;uploadedName=name||'uploaded.csv';$('seriesSource').value='csv';syncSeriesSource();$('seriesError').textContent='';
+ $('csvFileStatus').textContent=uploadedName+' · '+rows.length+' samples · 0–'+rows[rows.length-1][0]+' s · timestamps used directly. Ready to Run.';
+}
+function makeUploadedPlan(){
+ if(!uploadedRows)throw Error('Load a valid CSV file before running.');const speed=+$('seriesSpeed').value;if(![.25,1,2,5,10].includes(speed))throw Error('Choose a supported playback speed.');
+ const rows=uploadedRows.map(row=>row.slice()),duration=rows[rows.length-1][0],channels=seriesKeys.map((_,i)=>{const values=rows.map(row=>row[i+1]);return {type:'csv',min:Math.min(...values),max:Math.max(...values),value:values[0]}});
+ return {inputSource:'csv',fileName:uploadedName,csvRows:rows,duration,dt:null,speed,seed:null,count:rows.length,channels,trackMode:$('seriesTrackMode').value,base:{...state},cut,mwMode,enabled:enabled.slice()};
+}
+
+function readSeriesPlan(){
+ if($('seriesSource').value==='csv')return makeUploadedPlan();
+ const duration=+$('seriesDuration').value,dt=+$('seriesDt').value,speed=+$('seriesSpeed').value,seed=+$('seriesSeed').value;
+ if(!Number.isFinite(duration)||duration<.1||duration>3600)throw Error('Duration must be 0.1–3600 s.');
+ if(!Number.isFinite(dt)||dt<.001||dt>60||dt>duration)throw Error('Sample interval must be 0.001–60 s and no longer than the duration.');
+ const count=Math.ceil(duration/dt-1e-10)+1;if(count>10001)throw Error('Maximum 10,001 samples. Increase the sample interval or shorten the duration.');
+ if(![.25,1,2,5,10].includes(speed))throw Error('Choose a supported playback speed.');
+ if(!Number.isInteger(seed)||seed<1||seed>2147483647)throw Error('Noise seed must be an integer from 1 to 2147483647.');
+ const channels=seriesKeys.map((key,index)=>{
+  const c={type:$('ts_'+key+'_type').value};for(const field of ['min','max','value','freq','phase','tau','step'])c[field]=+$('ts_'+key+'_'+field).value;
+  const lower=index===0?0:-100,upper=index===0?200:100,name=seriesNames[index];
+  const required=['min','max',...(c.type==='constant'?['value']:[]),...(['sine','damped','square','triangle','noise'].includes(c.type)?['freq']:[]),...(['sine','damped','square','triangle'].includes(c.type)?['phase']:[]),...(c.type==='damped'?['tau']:[]),...(c.type==='step'?['step']:[])];if(required.some(f=>$('ts_'+key+'_'+f).value===''))throw Error(name+': fill all active waveform fields.');
+  if(!Number.isFinite(c.min)||!Number.isFinite(c.max)||c.min<lower||c.max>upper||c.min>c.max)throw Error(name+': choose ordered bounds inside '+lower+' to '+upper+'.');
+  if(c.type==='constant'){if(!Number.isFinite(c.value)||c.value<lower||c.value>upper||c.value<c.min||c.value>c.max)throw Error(name+': constant value must be within its bounds.');}
+  else if(c.min===c.max)throw Error(name+': maximum must exceed minimum for a changing function.');
+  if(['sine','damped','square','triangle','noise'].includes(c.type)){
+   if(!Number.isFinite(c.freq)||c.freq<.001||c.freq>100)throw Error(name+': frequency must be 0.001–100 Hz.');
+   if(c.freq*dt>.10000000001)throw Error(name+': use a sample interval ≤ '+(1/(10*c.freq)).toFixed(6)+' s (10 samples per cycle/update interval).');
+  }
+  if(['sine','damped','square','triangle'].includes(c.type)&&(!Number.isFinite(c.phase)||Math.abs(c.phase)>360))throw Error(name+': phase must be −360° to +360°.');
+  if(c.type==='damped'&&(!Number.isFinite(c.tau)||c.tau<.001||c.tau>3600))throw Error(name+': decay time must be 0.001–3600 s.');
+  if(c.type==='step'&&(!Number.isFinite(c.step)||c.step<0||c.step>duration))throw Error(name+': step time must lie within the experiment duration.');
+  return c;
+ });
+ return {inputSource:'functions',duration,dt,speed,seed,count,channels,trackMode:$('seriesTrackMode').value,base:{...state},cut,mwMode,enabled:enabled.slice()};
+}
+// Hungarian maximum-overlap assignment, previous eigenstate index -> new eigenstate index.
+function overlapAssignment(oldLine,newLine){
+ const delta=Math.atan2(dot(newLine.frameX,oldLine.frameY),dot(newLine.frameX,oldLine.frameX));
+ const score=oldLine.eigenvectors.map(a=>newLine.eigenvectors.map(b=>{let re=0,im=0;for(let k=0;k<9;k++){const phase=(2-Math.floor(k/3)-k%3)*delta,p=a[k]*b[k];re+=p*Math.cos(phase);im+=p*Math.sin(phase)}return re*re+im*im}));
+ const n=9,u=Array(10).fill(0),v=Array(10).fill(0),p=Array(10).fill(0),way=Array(10).fill(0);
+ for(let i=1;i<=n;i++){p[0]=i;let j0=0;const minv=Array(10).fill(Infinity),used=Array(10).fill(false);
+  do{used[j0]=true;const i0=p[j0];let delta=Infinity,j1=0;for(let j=1;j<=n;j++)if(!used[j]){const cur=1-score[i0-1][j-1]-u[i0]-v[j];if(cur<minv[j]){minv[j]=cur;way[j]=j0}if(minv[j]<delta){delta=minv[j];j1=j}}
+   for(let j=0;j<=n;j++)if(used[j]){u[p[j]]+=delta;v[j]-=delta}else minv[j]-=delta;j0=j1;
+  }while(p[j0]!==0);
+  do{const j1=way[j0];p[j0]=p[j1];j0=j1}while(j0!==0);
+ }
+ const assignment=Array(n);for(let j=1;j<=n;j++)assignment[p[j]-1]=j-1;return assignment;
+}
+
+function resonanceCentres(line){
+ const z=28.025*line.bp,x=28.025*line.bt/Math.sqrt(2),D=effectiveD();
+ const e=eigensystem([[D+z,x,0],[x,0,x],[0,x,D-z]]);
+ let anchor=0;for(let i=1;i<3;i++)if(e.vectors[i][1]**2>e.vectors[anchor][1]**2)anchor=i;
+ const refs=e.values.map((v,i)=>({i,f:Math.abs(v-e.values[anchor])})).filter(v=>v.i!==anchor).sort((a,b)=>a.f-b.f);
+ return refs.map((ref,k)=>{
+  const sep=Math.abs(refs[0].f-refs[1].f),window=Math.max(12,4*Math.abs(state.apar)+4*Math.abs(state.aperp));
+  let group=line.transitions.filter(tr=>Math.abs(tr.f-ref.f)<=window&&(sep<1e-5||Math.abs(tr.f-ref.f)<=Math.abs(tr.f-refs[1-k].f)+1e-8));
+  if(!group.length)group=line.transitions.slice().sort((a,b)=>Math.abs(a.f-ref.f)-Math.abs(b.f-ref.f)).slice(0,3);
+  if(!group.length){for(let i=0;i<9;i++)for(let j=i+1;j<9;j++)group.push({i,j,f:Math.abs(line.energies[j]-line.energies[i]),weight:0});return group.sort((a,b)=>Math.abs(a.f-ref.f)-Math.abs(b.f-ref.f))[0]}
+  const peak=Math.max(...group.map(tr=>tr.weight));group=group.filter(tr=>tr.weight>=.2*peak);
+  return group.sort((a,b)=>Math.abs(a.f-ref.f)-Math.abs(b.f-ref.f)||b.weight-a.weight)[0];
+ });
+}
+const resonanceSelected=Array(8).fill(true);
+function visibleSeriesTrack(track){return !track.resonance||resonanceSelected[track.resonance-1]}
+function selectedSeriesTracks(){return TS.tracks.map((tr,k)=>({tr,k})).filter(({tr})=>visibleSeriesTrack(tr))}
+function updateResonanceSelection(){
+ for(let i=0;i<8;i++)$('res'+(i+1)).checked=resonanceSelected[i];
+ if(document.activeElement!==$('resCustom'))$('resCustom').value=resonanceSelected.map((on,i)=>on?i+1:'').join('');
+ const eight=!TS.plan||TS.plan.trackMode!=='hyperfine';
+ if(!eight){$('resInfo').textContent='Individual hyperfine mode shows the previous up-to-24 traces. Switch tracking mode and start a new run to use R1–R8.';return}
+ const rows=TS.tracks.filter(tr=>tr.resonance).map(tr=>'R'+tr.resonance+' = NV'+(tr.axis+1)+' at '+tr.initialF.toFixed(3)+' MHz');
+ $('resInfo').textContent=rows.length?rows.join(' · ')+'. Numbers are fixed at t = 0; overlapping lines can be degenerate.':'Select any individual resonance or combination, including pairs. Numbering is assigned at the start of the next run.';
+}
+document.querySelectorAll('[data-res-set]').forEach(button=>button.onclick=()=>{const set=button.dataset.resSet;for(let i=0;i<8;i++)resonanceSelected[i]=set.includes(String(i+1));updateResonanceSelection();drawSeries()});
+for(let i=0;i<8;i++)$('res'+(i+1)).onchange=e=>{resonanceSelected[i]=e.target.checked;updateResonanceSelection();drawSeries()};
+$('resApply').onclick=()=>{const value=$('resCustom').value;if(/[^1-8,\s]/.test(value)){$('resInfo').textContent='Use only digits 1–8, optionally separated by commas or spaces.';return}for(let i=0;i<8;i++)resonanceSelected[i]=value.includes(String(i+1));updateResonanceSelection();drawSeries()};
+function captureSeriesSample(t){
+ if(TS.plan.inputSource==='csv'){const row=TS.plan.csvRows[TS.records.length];if(!row||Math.abs(row[0]-t)>1e-7)throw Error('CSV sample/time mismatch');seriesKeys.forEach((key,i)=>state[key]=row[i+1])}
+ else TS.plan.channels.forEach((c,i)=>state[seriesKeys[i]]=seriesValue(c,t,TS.plan.duration,TS.plan.seed,i));physics();
+ if(!TS.previous){
+  TS.tracks=[];
+  if(TS.plan.trackMode==='hyperfine'){lines.forEach((l,axis)=>{if(!TS.plan.enabled[axis])return;l.transitions.slice().sort((a,b)=>b.weight-a.weight).slice(0,6).sort((a,b)=>a.f-b.f).forEach((tr,k)=>TS.tracks.push({axis,i:tr.i,j:tr.j,initialI:tr.i,initialJ:tr.j,initialF:tr.f,name:'NV'+(axis+1)+'_'+(k+1),ordinal:k}))})}
+  else{
+   lines.forEach((l,axis)=>resonanceCentres(l).forEach((tr,k)=>{if(tr)TS.tracks.push({axis,i:tr.i,j:tr.j,initialI:tr.i,initialJ:tr.j,initialF:tr.f,name:'',ordinal:k})}));
+   TS.tracks.sort((a,b)=>a.initialF-b.initialF||a.axis-b.axis||a.ordinal-b.ordinal);
+   TS.tracks.forEach((tr,k)=>{tr.resonance=k+1;tr.name='R'+(k+1)+'_NV'+(tr.axis+1)});
+  }
+ }else{
+  const maps=lines.map((l,i)=>overlapAssignment(TS.previous[i],l));TS.tracks.forEach(track=>{track.i=maps[track.axis][track.i];track.j=maps[track.axis][track.j]});
+ }
+ const frequencies=TS.tracks.map(track=>Math.abs(lines[track.axis].energies[track.i]-lines[track.axis].energies[track.j]));
+ const weights=TS.tracks.map(track=>{const i=Math.min(track.i,track.j),j=Math.max(track.i,track.j),tr=lines[track.axis].transitions.find(v=>v.i===i&&v.j===j);return tr?tr.weight:0});
+ TS.records.push({t,inputs:seriesKeys.map(k=>state[k]),D:effectiveD(),B:B.slice(),frequencies,weights});TS.previous=lines;
+ if($('seriesFollow').checked)range=null;
+}
+function lockSeries(locked){
+ if(locked){
+  const allowed=new Set(['orbitMode','resetView','viewPng','plPng','miniPlPng','seriesPlPng','recordRun','recordStop','csv','transCsv','fit','zoom','out','seriesPause','seriesStop','welcomeDemo','seriesExport','seriesPng','seriesUnits','seriesFollow','resCustom','resApply','res1','res2','res3','res4','res5','res6','res7','res8']);
+  TS.locked=[...document.querySelectorAll('input,select,button')].filter(el=>!allowed.has(el.id)&&!el.hasAttribute('data-res-set'));TS.lockStates=TS.locked.map(el=>el.disabled);TS.locked.forEach(el=>el.disabled=true);setInteraction('view');
+ }else{TS.locked.forEach((el,i)=>el.disabled=TS.lockStates[i]);TS.locked=[];TS.lockStates=[]}
+ $('seriesPause').disabled=$('seriesStop').disabled=!locked;
+}
+function updateSeriesStatus(){
+ $('seriesStatus').textContent=TS.status;$('welcomeDemo').textContent=TS.running?'Stop time series':'Replay example';const has=TS.records.length>0;$('seriesExport').disabled=$('seriesPng').disabled=!has;
+ if(TS.running)TS.locked.forEach(el=>el.disabled=true);
+}
+function queueSeriesFrame(){const generation=TS.generation;requestAnimationFrame(now=>{if(generation===TS.generation)seriesTick(now)})}
+function seriesTick(now){
+ if(!TS.running||TS.paused)return;
+ TS.target=Math.min(TS.plan.duration,TS.target+Math.max(0,now-TS.lastWall)/1000*TS.plan.speed);TS.lastWall=now;
+ const start=performance.now();let changed=false;
+ while(TS.next<TS.plan.count){const t=TS.plan.inputSource==='csv'?TS.plan.csvRows[TS.next][0]:Math.min(TS.plan.duration,TS.next*TS.plan.dt);if(t>TS.target+1e-9)break;captureSeriesSample(t);TS.next++;changed=true;if(performance.now()-start>18)break}
+ const last=TS.records[TS.records.length-1];TS.status='Running · t = '+last.t.toFixed(3)+' / '+TS.plan.duration+' s · '+TS.records.length+' / '+TS.plan.count+' samples · '+TS.tracks.length+' frequency traces';
+ if(TS.next===TS.plan.count){TS.running=false;TS.status='Complete · '+TS.plan.duration+' s · '+TS.records.length+' samples · '+TS.tracks.length+' tracked transitions';lockSeries(false)}
+ if(changed)render();else updateSeriesStatus();
+ if(TS.running&&!TS.paused)queueSeriesFrame();
+}
+function startSeries(){
+ if(TS.running)return;
+ try{const plan=readSeriesPlan();if(!plan.enabled.some(Boolean))throw Error('Enable at least one NV orientation before running.');$('seriesError').textContent='';TS.plan=plan;TS.records=[];TS.tracks=[];TS.previous=null;TS.next=1;TS.target=0;TS.running=true;TS.paused=false;TS.generation++;TS.status='Running · t = 0 s';$('seriesPause').textContent='Pause';if(!range)range=view.slice();lockSeries(true);captureSeriesSample(0);render();TS.lastWall=performance.now();queueSeriesFrame()}catch(e){TS.running=false;lockSeries(false);$('seriesError').textContent=e.message;updateSeriesStatus()}
+}
+function stopSeries(){if(!TS.running)return;TS.running=false;TS.paused=false;TS.generation++;TS.status='Stopped · t = '+(TS.records.length?TS.records[TS.records.length-1].t.toFixed(3):'0')+' s · samples retained';lockSeries(false);$('seriesPause').textContent='Pause';render()}
+function syncWaveformFields(key){const type=$('ts_'+key+'_type').value;for(const f of ['min','max','value','freq','phase','tau','step']){const relevant=f==='min'||f==='max'||f==='value'&&type==='constant'||f==='freq'&&['sine','damped','noise','square','triangle'].includes(type)||f==='phase'&&['sine','damped','square','triangle'].includes(type)||f==='tau'&&type==='damped'||f==='step'&&type==='step';$('ts_'+key+'_'+f).disabled=!relevant}}
+for(const key of seriesKeys){$('ts_'+key+'_type').onchange=()=>syncWaveformFields(key);syncWaveformFields(key)}
+$('seriesSource').onchange=syncSeriesSource;
+$('seriesFile').onchange=async e=>{const file=e.target.files[0];uploadedRows=null;uploadedName='';$('seriesError').textContent='';if(!file){$('csvFileStatus').textContent='No file loaded.';return}try{if(file.size>2000000)throw Error('CSV file exceeds 2 MB.');$('csvFileStatus').textContent='Reading '+file.name+'…';installUploadedCsv(await file.text(),file.name)}catch(error){$('csvFileStatus').textContent='File not loaded: '+error.message;$('seriesError').textContent=error.message}};
+$('clearSeriesFile').onclick=()=>{uploadedRows=null;uploadedName='';$('seriesFile').value='';$('csvFileStatus').textContent='No file loaded.';$('seriesError').textContent=''};
+syncSeriesSource();
+$('seriesRun').onclick=startSeries;
+$('seriesPause').onclick=()=>{if(!TS.running)return;TS.paused=!TS.paused;TS.generation++;$('seriesPause').textContent=TS.paused?'Resume':'Pause';if(TS.paused){TS.status='Paused · t = '+TS.records[TS.records.length-1].t.toFixed(3)+' s';updateSeriesStatus()}else{TS.lastWall=performance.now();queueSeriesFrame()}};
+$('seriesStop').onclick=stopSeries;
+$('seriesReset').onclick=()=>{if(TS.running||!TS.plan)return;Object.assign(state,TS.plan.base);cut=TS.plan.cut;mwMode=TS.plan.mwMode;TS.plan.enabled.forEach((value,i)=>enabled[i]=value);document.querySelectorAll('[data-axis]').forEach(el=>el.checked=enabled[+el.dataset.axis]);TS.records=[];TS.tracks=[];TS.previous=null;captureSeriesSample(0);TS.status='Reset · t = 0 s · press Run to start again';render()};
+$('seriesCurrent').onclick=()=>{$('seriesSource').value='functions';syncSeriesSource();seriesKeys.forEach(k=>{const val=state[k];$('ts_'+k+'_type').value='constant';$('ts_'+k+'_value').value=val;$('ts_'+k+'_min').value=Math.min(+$('ts_'+k+'_min').value,val);$('ts_'+k+'_max').value=Math.max(+$('ts_'+k+'_max').value,val);syncWaveformFields(k)})};
+$('seriesDemo').onclick=()=>{$('seriesSource').value='functions';syncSeriesSource();const demo=[{type:'drift',min:25,max:30},{type:'sine',min:-50,max:50,freq:.5,phase:0},{type:'damped',min:-50,max:50,freq:1,phase:0,tau:3},{type:'step',min:-20,max:20,step:5}];seriesKeys.forEach((k,i)=>{for(const [f,val] of Object.entries(demo[i]))$('ts_'+k+'_'+f).value=val;syncWaveformFields(k)});$('seriesDuration').value=10;$('seriesDt').value=.05;$('seriesSeed').value=42;$('seriesError').textContent=''};
+$('seriesUnits').onchange=()=>drawSeries();
+function seriesCanvasBase(id){const a=canvas(id);a.c.fillStyle='#0c1521';a.c.fillRect(0,0,a.w,a.h);a.c.font='11px system-ui';return a}
+function drawSeries(){
+ updateSeriesStatus();updateResonanceSelection();const records=TS.records,duration=TS.plan?TS.plan.duration:10;
+ const input=seriesCanvasBase('seriesInputs'),c=input.c,left=110,right=input.w-20,top=12,bottom=input.h-27,lane=(bottom-top)/4;
+ if(!records.length){c.fillStyle='#9cafc2';c.fillText('Run an experiment to show temperature and field time traces.',18,35)}else{
+  records[0].inputs.forEach((_,axis)=>{const cfg=TS.plan.channels[axis],lo=cfg.min,hi=cfg.max===lo?lo+1:cfg.max,ybase=top+lane*axis;
+   c.fillStyle=colors[axis];c.textAlign='left';c.fillText(seriesNames[axis],8,ybase+14);c.fillStyle='#9cafc2';c.fillText(records[records.length-1].inputs[axis].toFixed(2),8,ybase+30);c.fillText(lo.toFixed(1)+' → '+hi.toFixed(1),8,ybase+43);
+   c.strokeStyle='#26384a';c.beginPath();c.moveTo(left,ybase+lane-6);c.lineTo(right,ybase+lane-6);c.stroke();c.strokeStyle=colors[axis];c.lineWidth=1.5;c.beginPath();records.forEach((r,i)=>{const x=left+r.t/duration*(right-left),y=ybase+lane-9-(r.inputs[axis]-lo)/(hi-lo)*(lane-19);i?c.lineTo(x,y):c.moveTo(x,y)});c.stroke();
+  });
+ }
+ c.fillStyle='#9cafc2';c.textAlign='center';for(let i=0;i<=4;i++)c.fillText((duration*i/4).toFixed(1),left+(right-left)*i/4,input.h-11);c.fillText('Time / s',(left+right)/2,input.h-1);
+ const plot=seriesCanvasBase('seriesPlot'),p=plot.c,L=68,R=plot.w-20,T=20,Btm=plot.h-42,absolute=$('seriesUnits').value==='absolute';
+ if(!records.length||!TS.tracks.length||!selectedSeriesTracks().length){p.fillStyle='#9cafc2';p.fillText(records.length?'No selected bright transitions to display.':'Resonance frequency traces will appear here.',18,35);return}
+ let min=Infinity,max=-Infinity;const value=(r,k)=>absolute?r.frequencies[k]/1000:r.frequencies[k]-TS.tracks[k].initialF;
+ for(const r of records)TS.tracks.forEach((tr,k)=>{if(!visibleSeriesTrack(tr))return;const f=value(r,k);min=Math.min(min,f);max=Math.max(max,f)});let pad=Math.max(absolute?.00001:.001,(max-min)*.08);min-=pad;max+=pad;
+ const xx=t=>L+t/duration*(R-L),yy=f=>Btm-(f-min)/(max-min)*(Btm-T);
+ for(let i=0;i<=4;i++){const f=min+(max-min)*i/4;p.strokeStyle='#26384a';p.beginPath();p.moveTo(L,yy(f));p.lineTo(R,yy(f));p.stroke();p.fillStyle='#9cafc2';p.textAlign='right';p.fillText(f.toFixed(absolute?4:3),L-7,yy(f)+4);p.textAlign='center';p.fillText((duration*i/4).toFixed(2),xx(duration*i/4),Btm+19)}
+ TS.tracks.forEach((tr,k)=>{if(!visibleSeriesTrack(tr))return;p.strokeStyle=colors[tr.axis];p.lineWidth=1.25;p.globalAlpha=.6+(tr.ordinal%3)*.2;p.setLineDash(tr.resonance?(tr.ordinal?[5,3]:[]):tr.ordinal>=3?[5,3]:[]);p.beginPath();records.forEach((r,i)=>i?p.lineTo(xx(r.t),yy(value(r,k))):p.moveTo(xx(r.t),yy(value(r,k))));p.stroke()});p.globalAlpha=1;p.setLineDash([]);
+ p.fillStyle='#9cafc2';p.textAlign='center';p.fillText('Time / s',(L+R)/2,plot.h-5);p.save();p.translate(13,(T+Btm)/2);p.rotate(-Math.PI/2);p.fillText(absolute?'Frequency / GHz':'Frequency shift / MHz',0,0);p.restore();
+}
+$('seriesExport').onclick=()=>{if(!TS.records.length)return;const header=['time_s','temperature_C','test_Bx_uT','test_By_uT','test_Bz_uT','D_MHz','total_Bx_mT','total_By_mT','total_Bz_mT'];selectedSeriesTracks().forEach(({tr})=>header.push(tr.name+'_MHz',tr.name+'_PL_weight'));const data=['# NV Simulation V15 time series · MagLab · © 2026 R. Tavakoli Dinani','# Quasi-static instantaneous eigenfrequencies; PL weights illustrative; eigenstate identities may be ambiguous at degeneracies.','# selected_resonances: '+resonanceSelected.map((on,i)=>on?i+1:'').join(''), '# plan: '+JSON.stringify(TS.plan),'# traces: '+JSON.stringify(selectedSeriesTracks().map(({tr})=>({name:tr.name,initial_eigenstate_pair:[tr.initialI+1,tr.initialJ+1],initial_frequency_MHz:tr.initialF}))),header.join(',')];TS.records.forEach(r=>{const row=[r.t,...r.inputs,r.D,...r.B];selectedSeriesTracks().forEach(({k})=>row.push(r.frequencies[k],r.weights[k]));data.push(row.join(','))});downloadCsv(data,'NV_TimeSeries')};
+$('seriesPng').onclick=()=>{if(!TS.records.length)return;drawSeries();const a=$('seriesInputs'),b=$('seriesPlot'),out=document.createElement('canvas'),dpr=window.devicePixelRatio||1;out.width=Math.max(a.width,b.width);out.height=a.height+b.height+92*dpr;const c=out.getContext('2d');c.fillStyle='#0c1521';c.fillRect(0,0,out.width,out.height);c.fillStyle='#edf4fa';c.font=16*dpr+'px system-ui';c.fillText('NV time-series experiment · '+TS.records[TS.records.length-1].t.toFixed(3)+' s',18*dpr,25*dpr);c.drawImage(a,0,42*dpr);c.drawImage(b,0,a.height+42*dpr);c.fillStyle='#9cafc2';c.font=11*dpr+'px system-ui';c.fillText('Selected R: '+resonanceSelected.map((on,i)=>on?i+1:'').join('')+' · NV1 mint / NV2 blue / NV3 orange / NV4 purple · '+($('seriesUnits').value==='absolute'?'absolute GHz':'shift from t = 0, MHz'),18*dpr,out.height-26*dpr);c.fillText('MagLab · © 2026 R. Tavakoli Dinani · quasi-static model',18*dpr,out.height-9*dpr);out.toBlob(blob=>{if(!blob)return;const link=document.createElement('a'),url=URL.createObjectURL(blob);link.href=url;link.download='NV_TimeSeries_'+new Date().toISOString().replace(/[:.]/g,'-')+'.png';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)},'image/png')};
+
+const INV={running:false,token:0,result:null};
+function inverseContext(){return JSON.stringify([state.D,state.temp,state.apar,state.aperp,state.quad,state.gammaN,state.rotation,state.tiltX,state.tiltY,cut,mwMode,state.mwTheta,state.mwPhi,state.testX,state.testY,state.testZ,$('inverseModel').value])}
+function inverseAxes(){return [[1,1,1],[1,-1,-1],[-1,1,-1],[-1,-1,1]].map(v=>crystalToLab(unit(v)))}
+function electronicCentresAt(field,n){
+ const bp=dot(field,n),bt=Math.hypot(...field.map((v,i)=>v-bp*n[i])),z=28.025*bp,x=28.025*bt/Math.sqrt(2),D=effectiveD(),e=eigensystem([[D+z,x,0],[x,0,x],[0,x,D-z]]);
+ let bright=0;for(let i=1;i<3;i++)if(e.vectors[i][1]**2>e.vectors[bright][1]**2)bright=i;
+ return e.values.filter((_,i)=>i!==bright).map(v=>Math.abs(v-e.values[bright]));
+}
+function inverseForward(field,model='electronic',nvAxes=inverseAxes()){
+ const drive=mwDirection();return nvAxes.flatMap(n=>model==='hyperfine'?resonanceCentres(lineAtField(field,n,drive)).map(tr=>tr.f):electronicCentresAt(field,n)).sort((a,b)=>a-b);
+}
+function inverseResidual(field,target,model,nvAxes){const predicted=inverseForward(field,model,nvAxes);return predicted.map((f,i)=>f-target[i])}
+function squaredNorm(v){return v.reduce((sum,x)=>sum+x*x,0)}
+function constrainField(v){const mag=Math.hypot(...v);return mag>1000.2?v.map(x=>x*1000.2/mag):v.slice()}
+function solveInverse3(matrix,rhs){
+ const a=matrix.map((row,i)=>[...row,rhs[i]]);for(let p=0;p<3;p++){let pivot=p;for(let i=p+1;i<3;i++)if(Math.abs(a[i][p])>Math.abs(a[pivot][p]))pivot=i;if(Math.abs(a[pivot][p])<1e-18)return null;[a[p],a[pivot]]=[a[pivot],a[p]];const norm=a[p][p];for(let j=p;j<4;j++)a[p][j]/=norm;for(let i=0;i<3;i++)if(i!==p){const c=a[i][p];for(let j=p;j<4;j++)a[i][j]-=c*a[p][j]}}
+ return a.map(row=>row[3]);
+}
+function inverseJacobian(v,target,model,nvAxes){
+ const h=Math.max(1e-6,Math.hypot(...v)*1e-6),columns=[];
+ for(let k=0;k<3;k++){const plus=v.slice(),minus=v.slice();plus[k]+=h;minus[k]-=h;const a=inverseResidual(plus,target,model,nvAxes),b=inverseResidual(minus,target,model,nvAxes);columns.push(a.map((f,i)=>(f-b[i])/(2*h)))}
+ return Array.from({length:8},(_,i)=>columns.map(c=>c[i]));
+}
+function optimizeInverse(start,target,model,nvAxes,maxIterations=65){
+ let v=constrainField(start),r=inverseResidual(v,target,model,nvAxes),cost=squaredNorm(r),lambda=.001;
+ for(let iteration=0;iteration<maxIterations;iteration++){
+  if(cost<1e-18)break;const J=inverseJacobian(v,target,model,nvAxes),A=Array.from({length:3},(_,i)=>Array.from({length:3},(_,j)=>J.reduce((sum,row)=>sum+row[i]*row[j],0))),g=Array.from({length:3},(_,i)=>J.reduce((sum,row,k)=>sum+row[i]*r[k],0));
+  const damped=A.map((row,i)=>row.map((x,j)=>x+(i===j?lambda*Math.max(1,A[i][i]):0))),step=solveInverse3(damped,g.map(x=>-x));if(!step)break;
+  const candidate=constrainField(v.map((x,i)=>x+step[i])),rr=inverseResidual(candidate,target,model,nvAxes),nextCost=squaredNorm(rr);
+  if(nextCost<cost){v=candidate;r=rr;cost=nextCost;lambda=Math.max(1e-12,lambda/3);if(Math.hypot(...step)<1e-9)break}else{lambda*=8;if(lambda>1e12)break}
+ }
+ return {field:v,cost,rms:Math.sqrt(cost/8)};
+}
+function inversePermutations(list){if(!list.length)return [[]];return list.flatMap((v,i)=>inversePermutations(list.filter((_,j)=>i!==j)).map(p=>[v,...p]))}
+function inverseSeeds(target,nvAxes,reference){
+ const D=effectiveD(),estimate=Math.min(1000,Math.max(.001,(target[7]-D)/28.025,(target[7]-target[0])/56.05));
+ const seeds=[reference.slice()],projections=Array.from({length:4},(_,i)=>Math.abs(target[7-i]-target[i])/56.05);
+ // Pairing lower and upper branches supplies good low-field guesses, including unknown NV assignments.
+ const candidates=[];for(const permutation of inversePermutations(projections))for(let mask=0;mask<16;mask++){
+  const field=[0,0,0];for(let i=0;i<4;i++)for(let k=0;k<3;k++)field[k]+=.75*nvAxes[i][k]*permutation[i]*(mask&(1<<i)?1:-1);
+  const v=constrainField(field);candidates.push({field:v,cost:squaredNorm(inverseResidual(v,target,'electronic',nvAxes))});
+ }
+ candidates.sort((a,b)=>a.cost-b.cost);for(const candidate of candidates){if(seeds.every(v=>Math.hypot(...v.map((x,i)=>x-candidate.field[i]))>1e-4)){seeds.push(candidate.field);if(seeds.length>=7)break}}
+ for(let i=0;i<12;i++){const z=1-2*(i+.5)/12,phi=i*2.399963229728653,rad=Math.sqrt(1-z*z),factor=i%3===0?.55:i%3===1?1:1.35;seeds.push(constrainField([rad*Math.cos(phi),rad*Math.sin(phi),z].map(x=>x*estimate*factor)))}
+ return seeds;
+}
+function inverseSymmetrySolutions(field,target,model,nvAxes,reference,test,tolerance){
+ const basis=[[1,0,0],[0,1,0],[0,0,1]].map(crystalToLab),crystal=basis.map(n=>dot(n,field)),all=[];
+ for(const perm of inversePermutations([0,1,2]))for(let mask=0;mask<8;mask++){
+  const v=[0,0,0];for(let i=0;i<3;i++)for(let k=0;k<3;k++)v[k]+=basis[i][k]*crystal[perm[i]]*(mask&(1<<i)?1:-1);
+  if(all.some(candidate=>Math.hypot(...candidate.field.map((x,i)=>x-v[i]))<1e-6))continue;
+  const predicted=inverseForward(v,model,nvAxes),residual=predicted.map((f,i)=>f-target[i]),rms=Math.sqrt(squaredNorm(residual)/8),bias=v.map((x,i)=>x-test[i]);
+  all.push({field:v,bias,predicted,residual,rms,distance:Math.hypot(...bias.map((x,i)=>x-reference[i]))});
+ }
+ const best=Math.min(...all.map(v=>v.rms)),compatible=all.filter(v=>v.rms<=best+Math.max(1e-6,tolerance));compatible.sort((a,b)=>a.distance-b.distance||a.rms-b.rms);return compatible;
+}
+function readMeasuredFrequencies(){
+ const values=Array.from({length:8},(_,i)=>{const input=$('measuredR'+(i+1)),v=Number(input.value);if(input.value===''||!Number.isFinite(v)||v<=0||v>65000)throw Error('Enter a positive frequency up to 65000 MHz for resonance '+(i+1)+'.');return v});
+ if(values.some((v,i)=>i&&v<values[i-1]))throw Error('Enter frequencies from low to high, or press Sort entered frequencies.');return values;
+}
+function clearInverseResult(){INV.result=null;$('inverseResults').hidden=true;$('inverseApply').disabled=$('inverseExport').disabled=true}
+function inverseResultIsCurrent(){if(!INV.result)return false;try{return INV.result.context===inverseContext()&&readMeasuredFrequencies().every((v,i)=>v===INV.result.target[i])}catch(_){return false}}
+function directionAngles(v){const magnitude=Math.hypot(...v);return {magnitude,theta:magnitude>1e-8?Math.acos(Math.max(-1,Math.min(1,v[2]/magnitude)))/RAD:null,phi:magnitude>1e-8?(Math.atan2(v[1],v[0])/RAD+360)%360:null}}
+function showInverseSolution(){
+ if(!INV.result)return;const index=+$('inverseSolution').value||0,chosen=INV.result.solutions[index],angles=directionAngles(chosen.bias);
+ $('inverseMagnitude').textContent=angles.magnitude.toFixed(6);$('inverseTheta').textContent=angles.theta===null?'undefined':angles.theta.toFixed(3);$('inversePhi').textContent=angles.phi===null?'undefined':angles.phi.toFixed(3);
+ $('inverseVector').textContent='Bias lab [Bx, By, Bz] = ['+chosen.bias.map(v=>v.toFixed(6)).join(', ')+'] mT · |B| = '+(angles.magnitude/1000).toFixed(9)+' T. Total static field = ['+chosen.field.map(v=>v.toFixed(6)).join(', ')+'] mT.';
+ const poor=chosen.rms>INV.result.tolerance;
+ $('inverseQuality').textContent='Frequency RMS residual: '+(chosen.rms*1000).toFixed(3)+' kHz · largest residual: '+(Math.max(...chosen.residual.map(Math.abs))*1000).toFixed(3)+' kHz · '+INV.result.solutions.length+' symmetry-related compatible directions. '+(poor?'Fit exceeds your residual threshold. Check temperature, peak assignment, model and measured values. ':'Numerically consistent with the chosen frequency model. ')+(INV.result.illConditioned?'Local fit is poorly conditioned; small frequency errors may cause large field changes. ':'')+'Multiple numerical starts were used; a global optimum is not guaranteed.';
+ $('inverseResidualRows').innerHTML=chosen.predicted.map((f,i)=>'<tr><td>R'+(i+1)+'</td><td>'+INV.result.target[i].toFixed(6)+'</td><td>'+f.toFixed(6)+'</td><td>'+(chosen.residual[i]*1000).toFixed(3)+'</td></tr>').join('');
+ $('inverseResults').hidden=false;$('inverseApply').disabled=$('inverseExport').disabled=false;
+}
+async function reconstructInverse(){
+ if(INV.running)return;clearInverseResult();let token;
+ try{
+  const target=readMeasuredFrequencies(),tolerance=+$('inverseTolerance').value;if(!Number.isFinite(tolerance)||tolerance<1e-6||tolerance>100)throw Error('Residual threshold must be 0.000001–100 MHz.');
+  physics();const context=inverseContext(),reference=biasB.slice(),test=[state.testX,state.testY,state.testZ].map(v=>v/1000),totalReference=B.slice(),nvAxes=inverseAxes(),model=$('inverseModel').value;
+  INV.running=true;$('seriesRun').disabled=true;token=++INV.token;$('inverseFit').disabled=true;$('inverseCancel').disabled=false;
+  function check(){if(token!==INV.token)throw Error('Fit cancelled.');if(context!==inverseContext())throw Error('Model settings changed during the fit. Run reconstruction again.');if(!readMeasuredFrequencies().every((v,i)=>v===target[i]))throw Error('Measured inputs changed. Run reconstruction again.')}
+  const pause=()=>new Promise(resolve=>setTimeout(resolve,0));
+  $('inverseStatus').textContent='Preparing candidate field directions…';await pause();check();
+  const starts=inverseSeeds(target,nvAxes,totalReference),fits=[];
+  for(let i=0;i<starts.length;i++){check();fits.push(optimizeInverse(starts[i],target,'electronic',nvAxes));$('inverseStatus').textContent='Electronic fit: start '+(i+1)+' / '+starts.length;await pause()}
+  fits.sort((a,b)=>a.cost-b.cost);let best=fits[0];
+  if(model==='hyperfine'){
+   const refine=[...fits.slice(0,3).map(f=>f.field),totalReference];best=null;
+   for(let i=0;i<refine.length;i++){check();$('inverseStatus').textContent='Full ¹⁴N refinement: '+(i+1)+' / '+refine.length;await pause();const fit=optimizeInverse(refine[i],target,'hyperfine',nvAxes,55);if(!best||fit.cost<best.cost)best=fit;await pause()}
+  }
+  check();$('inverseStatus').textContent='Checking equivalent crystal directions…';await pause();const solutions=inverseSymmetrySolutions(best.field,target,model,nvAxes,reference,test,tolerance);check();
+  const J=inverseJacobian(best.field,target,model,nvAxes),normal=Array.from({length:3},(_,i)=>Array.from({length:3},(_,j)=>J.reduce((sum,row)=>sum+row[i]*row[j],0))),eigen=eigensystem(normal).values,illConditioned=eigen[0]<=0||eigen[2]/eigen[0]>1e8;
+  INV.result={target,tolerance,model,context,reference,test,temperature:state.temp,D:effectiveD(),cut,rotations:[state.tiltX,state.tiltY,state.rotation],solutions,illConditioned};
+  $('inverseSolution').innerHTML=solutions.map((candidate,i)=>{const a=directionAngles(candidate.bias);return '<option value="'+i+'">'+(i+1)+(i===0?' · nearest current bias':'')+' · B = ['+candidate.bias.map(v=>v.toFixed(4)).join(', ')+'] mT · θ '+(a.theta===null?'undefined':a.theta.toFixed(2)+'°')+' · φ '+(a.phi===null?'undefined':a.phi.toFixed(2)+'°')+'</option>'}).join('');$('inverseSolution').value='0';showInverseSolution();$('inverseStatus').textContent='Reconstruction complete. Inspect the residuals and compatible directions below.';
+ }catch(error){$('inverseStatus').textContent=error.message}
+ finally{INV.running=false;$('seriesRun').disabled=TS.running;$('inverseFit').disabled=TS.running;$('inverseCancel').disabled=true}
+}
+$('inverseFit').onclick=reconstructInverse;$('inverseCancel').onclick=()=>{INV.token++};$('inverseSolution').onchange=showInverseSolution;
+$('inverseCurrent').onclick=()=>{if(INV.running)return;physics();const frequencies=inverseForward(B,$('inverseModel').value);frequencies.forEach((f,i)=>$('measuredR'+(i+1)).value=f.toFixed(6));clearInverseResult();$('inverseStatus').textContent='Filled from the current simulated total field. Press Reconstruct field to validate the round trip.'};
+$('inverseSort').onclick=()=>{if(INV.running)return;try{const values=Array.from({length:8},(_,i)=>{const el=$('measuredR'+(i+1));if(el.value===''||!Number.isFinite(+el.value)||+el.value<=0)throw Error('Fill all eight frequencies before sorting.');return +el.value}).sort((a,b)=>a-b);values.forEach((v,i)=>$('measuredR'+(i+1)).value=v);clearInverseResult()}catch(error){$('inverseStatus').textContent=error.message}};
+for(let i=1;i<=8;i++)$('measuredR'+i).addEventListener('input',clearInverseResult);
+$('inverseModel').onchange=clearInverseResult;
+$('inverseApply').onclick=()=>{if(!inverseResultIsCurrent()){$('inverseStatus').textContent='Model or measured inputs changed. Reconstruct again before applying.';return}const chosen=INV.result.solutions[+$('inverseSolution').value||0],a=directionAngles(chosen.bias);if(a.magnitude>1000){$('inverseStatus').textContent='Chosen bias exceeds the simulator limit of 1000 mT.';return}state.mag=a.magnitude;if(a.theta!==null){state.theta=a.theta;state.phi=a.phi}range=null;request();$('inverseStatus').textContent='Chosen bias applied. The existing test field is retained.'};
+$('inverseExport').onclick=()=>{if(!inverseResultIsCurrent()){$('inverseStatus').textContent='Model or measured inputs changed. Reconstruct again before exporting.';return}const result=INV.result,chosen=result.solutions[+$('inverseSolution').value||0],data=['# NV Simulation V15 field reconstruction · MagLab · © 2026 R. Tavakoli Dinani','# model: '+result.model+'; temperature_C: '+result.temperature+'; D_effective_MHz: '+result.D+'; diamond_cut: '+result.cut+'; crystal_roll_pitch_yaw_deg: '+result.rotations.join(','),'# chosen_bias_mT: '+chosen.bias.join(',')+'; chosen_total_field_mT: '+chosen.field.join(','),'# known_test_field_mT: '+result.test.join(','),'# Direction is not unique from an unlabelled eight-line spectrum. Solution nearest reference bias was initially selected.','resonance,measured_MHz,predicted_MHz,residual_kHz'];chosen.predicted.forEach((f,i)=>data.push([i+1,result.target[i],f,chosen.residual[i]*1000].join(',')));data.push('','solution,bias_Bx_mT,bias_By_mT,bias_Bz_mT,bias_magnitude_mT,theta_deg,phi_deg,RMS_kHz');result.solutions.forEach((solution,i)=>{const a=directionAngles(solution.bias);data.push([i+1,...solution.bias,a.magnitude,a.theta??'',a.phi??'',solution.rms*1000].join(','))});downloadCsv(data,'NV_Field_Reconstruction')};
+
+function saveCanvasPng(id,prefix){
+render();
+const source=$(id),out=document.createElement('canvas'),dpr=window.devicePixelRatio||1;
+const header=Math.round(116*dpr),footer=Math.round(26*dpr);
+out.width=source.width;out.height=source.height+header+footer;
+const c=out.getContext('2d');c.fillStyle='#121d2b';c.fillRect(0,0,out.width,out.height);
+c.save();c.scale(dpr,dpr);c.fillStyle='#edf4fa';c.font='bold 16px system-ui';c.fillText(id==='field'?'NV crystal and bias field':'NV photoluminescence spectrum',18,24);
+c.fillStyle='#9cafc2';c.font='11px system-ui';c.fillText('B = '+state.mag.toFixed(3)+' mT · θ = '+state.theta.toFixed(1)+'° · φ = '+state.phi.toFixed(1)+'° · diamond ('+cut+')',18,44);
+c.fillText('Crystal rotations x/y/z: '+[state.tiltX,state.tiltY,state.rotation].map(v=>v.toFixed(1)+'°').join(' / ')+(id==='field'?' · camera yaw/pitch: '+camera.yaw.toFixed(1)+'° / '+camera.pitch.toFixed(1)+'°':' · D = '+(effectiveD()/1000).toFixed(6)+' GHz · full ¹⁴N model'),18,62);c.fillText('MW: '+mwMode+' · θ₁ = '+state.mwTheta.toFixed(1)+'° · φ₁ = '+state.mwPhi.toFixed(1)+'° · PL amplitudes illustrative',18,82);c.fillText('T = '+state.temp.toFixed(1)+' °C · test Bx/By/Bz = '+[state.testX,state.testY,state.testZ].map(v=>v.toFixed(1)).join(' / ')+' µT · total |B| = '+Math.hypot(...B).toFixed(6)+' mT',18,102);c.restore();
+c.drawImage(source,0,header);
+c.save();c.scale(dpr,dpr);c.fillStyle='#9cafc2';c.font='11px system-ui';c.fillText('MagLab · © 2026 R. Tavakoli Dinani',18,out.height/dpr-9);c.restore();
+out.toBlob(blob=>{if(!blob)return;const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=prefix+'_'+new Date().toISOString().replace(/[:.]/g,'-')+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)},'image/png');
+}
+
+const recording={recorder:null,stream:null,canvas:null,chunks:[],url:null,raf:0,timer:0};
+function recordingSupported(){return typeof MediaRecorder!=='undefined'&&typeof HTMLCanvasElement.prototype.captureStream==='function'}
+function composeRecordingFrame(){
+ const out=recording.canvas;if(!out)return;const c=out.getContext('2d');
+ c.fillStyle='#121d2b';c.fillRect(0,0,out.width,out.height);c.fillStyle='#edf4fa';c.font='bold 19px system-ui';c.fillText('MagLab · NV time-series experiment',22,29);
+ const last=TS.records[TS.records.length-1];c.font='13px system-ui';c.fillStyle='#9cafc2';c.fillText('t = '+(last?last.t.toFixed(3):'0')+' s · T = '+state.temp.toFixed(2)+' °C · test Bx / By / Bz = '+[state.testX,state.testY,state.testZ].map(x=>x.toFixed(2)).join(' / ')+' µT',22,52);
+ c.fillText('Bias '+state.mag.toFixed(4)+' mT · θ '+state.theta.toFixed(1)+'° · φ '+state.phi.toFixed(1)+'° · diamond ('+cut+') · playback '+TS.plan.speed+'×',22,73);
+ const panels=[['plot','PL spectrum',94,310],['seriesInputs','Temperature and lab test fields',430,250],['seriesPlot','Tracked resonances · '+($('seriesUnits').value==='absolute'?'absolute GHz':'shift from t = 0, MHz'),706,310]];
+ for(const [id,title,y,h] of panels){c.font='bold 13px system-ui';c.fillStyle='#edf4fa';c.fillText(title,22,y);c.drawImage($(id),16,y+10,1168,h)}
+ c.font='12px system-ui';c.fillStyle='#9cafc2';c.fillText('NV1 mint · NV2 blue · NV3 orange · NV4 purple · selected R: '+resonanceSelected.map((v,i)=>v?i+1:'').join(''),22,1050);
+ c.fillText('© 2026 R. Tavakoli Dinani · quasi-static model · PL amplitudes illustrative',22,1071);
+}
+function finishRecording(){const r=recording.recorder;if(r&&r.state!=='inactive'){composeRecordingFrame();r.stop()}}
+function recordingFrame(){
+ const r=recording.recorder;if(!r||r.state==='inactive')return;
+ if(TS.paused){if(r.state==='recording')r.pause()}else{if(r.state==='paused')r.resume();composeRecordingFrame()}
+ if(!TS.running){finishRecording();return}recording.raf=requestAnimationFrame(recordingFrame);
+}
+$('recordRun').onclick=()=>{
+ if(INV.running){$('recordStatus').textContent='Wait for field reconstruction to finish before recording.';return}
+ if(recording.recorder&&recording.recorder.state!=='inactive')return;
+ if(!recordingSupported()){$('recordStatus').textContent='Video recording is unavailable in this browser. Use the PNG and CSV exports, or open this page in a browser supporting canvas video recording.';return}
+ // Validate before stopping an existing run or creating capture resources.
+ try{const plan=readSeriesPlan();if(!plan.enabled.some(Boolean))throw Error('Enable at least one NV orientation.')}catch(e){$('recordStatus').textContent=e.message;return}
+ if(TS.running)stopSeries();
+ try{
+  recording.canvas=document.createElement('canvas');recording.canvas.width=1200;recording.canvas.height=1088;recording.chunks=[];
+  recording.stream=recording.canvas.captureStream(20);
+  const mime=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4'].find(type=>MediaRecorder.isTypeSupported(type));
+  const r=new MediaRecorder(recording.stream,mime?{mimeType:mime,videoBitsPerSecond:4000000}:{videoBitsPerSecond:4000000});recording.recorder=r;
+  r.ondataavailable=e=>{if(e.data.size)recording.chunks.push(e.data)};
+  r.onstop=()=>{
+   cancelAnimationFrame(recording.raf);clearTimeout(recording.timer);recording.stream.getTracks().forEach(t=>t.stop());$('recordRun').disabled=false;$('recordStop').disabled=true;
+   const type=r.mimeType||recording.chunks[0]?.type||'video/webm',blob=new Blob(recording.chunks,{type});
+   if(!blob.size){$('recordStatus').textContent='No video frames were captured. Keep the page visible and try recording again.';return}
+   if(recording.url)URL.revokeObjectURL(recording.url);recording.url=URL.createObjectURL(blob);
+   const a=$('recordDownload');a.href=recording.url;a.download='NV_Spectrum_TimeSeries_'+new Date().toISOString().replace(/[:.]/g,'-')+(type.includes('mp4')?'.mp4':'.webm');a.hidden=false;a.textContent='Download animation ('+(blob.size/1048576).toFixed(1)+' MB)';$('recordStatus').textContent='Animation ready. Download the video using the link above. PNG and CSV exports remain available.';
+  };
+  r.onerror=()=>{$('recordStatus').textContent='Browser video recording failed. Try a shorter run or use PNG/CSV exports.';finishRecording()};
+  startSeries();if(!TS.running)throw Error('Time-series run could not start.');composeRecordingFrame();r.start(1000);$('recordRun').disabled=true;$('recordStop').disabled=false;$('recordStatus').textContent='Recording spectrum + input waveforms + resonance traces. Keep this tab visible; use Finish recording to save early.';
+  recording.timer=setTimeout(finishRecording,120000);recordingFrame();
+ }catch(e){recording.stream?.getTracks().forEach(t=>t.stop());$('recordRun').disabled=false;$('recordStop').disabled=true;$('recordStatus').textContent='Could not start video: '+e.message}
+};
+$('recordStop').onclick=finishRecording;
+if(!recordingSupported()){$('recordRun').disabled=true;$('recordStatus').textContent='Video recording is unavailable in this browser. PNG and CSV exports are available.'}
+$('miniPlPng').onclick=$('seriesPlPng').onclick=()=>saveCanvasPng('plot','NV_PL');
+
+$('viewPng').onclick=()=>saveCanvasPng('field','NV_View');
+$('plPng').onclick=()=>saveCanvasPng('plot','NV_PL');
+
+function metadata(){return ['# NV Simulation V15 · MagLab · © 2026 R. Tavakoli Dinani',
+ '# model: full 9x9 S=1 I=1 ground-state Hamiltonian; all eigenstate pairs',
+ '# PL amplitudes: illustrative; weight = MW strength * (P0_i - P0_j)^2; dip coefficient = (2/3) * contrast_scale * weight',
+ `# B_total_mT: ${B.join(',')}; B_bias_mT: ${biasB.join(',')}`,
+ `# temperature_C: ${state.temp}; D_at_25C_MHz: ${state.D}; D_effective_MHz: ${effectiveD()}; D_temperature_model: anchored Toyli cubic; test_field_lab_uT: ${[state.testX,state.testY,state.testZ].join(',')}`,
+ `# theta_deg: ${state.theta}; phi_deg: ${state.phi}; diamond_cut: (${cut}); yaw_z_deg: ${state.rotation}; pitch_y_deg: ${state.tiltY}; roll_x_deg: ${state.tiltX}`,
+ `# D_effective_MHz: ${effectiveD()}; gamma_e_MHz_per_mT: 28.025; A_parallel_MHz: ${state.apar}; A_perp_MHz: ${state.aperp}; Q_MHz: ${state.quad}; gamma_n_MHz_per_T: ${state.gammaN}; nuclear_Zeeman_sign: minus`,
+ `# MW_mode: ${mwMode}; MW_theta_deg: ${state.mwTheta}; MW_phi_deg: ${state.mwPhi}; MW_unit_vector_lab: ${drive.join(',')}`,
+ `# FWHM_MHz: ${state.width}; contrast_scale_percent: ${state.contrast}; enabled_NV1_to_NV4: ${enabled.join(',')}`,
+ '# transitions retained when frequency >= 1e-6 MHz and PL weight > 1e-8']}
+function downloadCsv(data,prefix){const a=document.createElement('a'),url=URL.createObjectURL(new Blob([data.join('\n')],{type:'text/csv'}));a.href=url;a.download=prefix+'_'+new Date().toISOString().replace(/[:.]/g,'-')+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+$('csv').onclick=()=>{render();const span=view[1]-view[0],N=Math.min(250000,Math.max(12000,Math.ceil(span/state.width*10))),data=[...metadata(),`# uniform_samples: ${N+1}; frequency_step_MHz: ${span/N}`,'frequency_MHz,PL_percent,NV1_PL_percent,NV2_PL_percent,NV3_PL_percent,NV4_PL_percent'];
+ // Uniform grid plus exact resonance-centred samples preserves narrow hyperfine lines at high fields.
+ const grid=new Set();for(let i=0;i<=N;i++)grid.add(view[0]+span*i/N);
+ for(const t of activeTransitions())for(const k of [-3,-1,-.5,0,.5,1,3]){const f=t.f+k*state.width;if(f>=view[0]&&f<=view[1])grid.add(f)}
+ data.splice(data.length-1,0,'# sampling: sorted uniform grid augmented near resonances; spacing is nonuniform');
+ for(const f of [...grid].sort((a,b)=>a-b)){const ch=spectrumChannels(f),total=100-ch.reduce((sum,y)=>sum+100-y,0);data.push([f,total,...ch].join(','))}downloadCsv(data,'NV_PL')};
+$('transCsv').onclick=()=>{render();const data=[...metadata(),'NV,enabled,eigenstate_i,eigenstate_j,frequency_MHz,MW_strength,brightness_difference_squared,PL_weight'];lines.forEach((l,k)=>l.transitions.forEach(t=>data.push([k+1,enabled[k],t.i+1,t.j+1,t.f,t.strength,t.brightnessContrast,t.weight].join(','))));downloadCsv(data,'NV_Transitions')};
+$('welcomeDemo').onclick=()=>{if(TS.running){stopSeries();return}$('seriesDemo').click();startSeries()};
+window.MagLabStudio={
+ getSpectrum(){render();const a=view[0],b=view[1],n=1800;return {min:a,max:b,channels:Array.from({length:5},(_,k)=>Array.from({length:n},(_,i)=>{const f=a+(b-a)*i/(n-1);return k===0?spectrum(f):spectrum(f,k-1)}))}},
+ getCamera(){return {...camera}},
+ getFrameAxes(frame){return frame==='diamond'?[[1,0,0],[0,1,0],[0,0,1]].map(crystalToLab):[[1,0,0],[0,1,0],[0,0,1]]},
+
+ setCamera(yaw,pitch,zoom){camera.yaw=Number(yaw)||0;camera.pitch=Math.max(-180,Math.min(180,Number(pitch)||0));camera.zoom=Math.max(.3,Math.min(3,Number(zoom)||1));request()},
+ redraw(){request()}
+};
+window.addEventListener('resize',request);render();
+// Start once after the first paint; completed traces remain available to explore.
+requestAnimationFrame(()=>{$('seriesDemo').click();startSeries()});
+
+(function(){
+const ids=['fmMode','fmWave','fmDev','fmRate','fmPhase','fmHarm','fmSamples','fmSpan'];
+const v=id=>document.getElementById(id),num=id=>Number(v(id).value);
+function wave(t){t=((t%1)+1)%1;switch(v('fmWave').value){case 'triangle':return 2/Math.PI*Math.asin(Math.sin(2*Math.PI*t));case 'square':return t<.5?1:-1;case 'saw':return 2*t-1;default:return Math.sin(2*Math.PI*t)}}
+function graph(id,series,xmin,xmax,ymin,ymax,xlabel,ylabel){
+ const cv=v(id),dpr=window.devicePixelRatio||1,w=Math.max(300,cv.clientWidth),h=cv.clientHeight||290;cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);
+ const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.fillStyle='#121d2b';c.fillRect(0,0,w,h);
+ const l=67,r=w-20,t=30,b=h-45;const xx=x=>l+(x-xmin)/(xmax-xmin)*(r-l),yy=y=>b-(y-ymin)/(ymax-ymin||1)*(b-t);
+ c.font='11px system-ui';c.lineWidth=1;c.textAlign='right';
+ for(let i=0;i<=4;i++){let y=ymin+(ymax-ymin)*i/4;c.strokeStyle='#293c4d';c.beginPath();c.moveTo(l,yy(y));c.lineTo(r,yy(y));c.stroke();c.fillStyle='#aabccd';c.fillText(y.toFixed(Math.abs(ymax-ymin)<1?3:2),l-7,yy(y)+4)}
+ c.textAlign='center';for(let i=0;i<=5;i++){let x=xmin+(xmax-xmin)*i/5;c.fillStyle='#aabccd';c.fillText(x.toFixed(1),xx(x),b+17)}
+ c.fillText(xlabel,(l+r)/2,h-7);c.save();c.translate(13,(t+b)/2);c.rotate(-Math.PI/2);c.fillText(ylabel,0,0);c.restore();
+ series.forEach((s,j)=>{c.strokeStyle=s.color;c.lineWidth=1.8;c.beginPath();s.points.forEach((p,i)=>{if(i)c.lineTo(xx(p[0]),yy(p[1]));else c.moveTo(xx(p[0]),yy(p[1]))});c.stroke();c.fillStyle=s.color;c.textAlign='left';c.fillText(s.label,l+8+j*155,17)});
+}
+let scheduled=false;
+function renderFM(){
+ scheduled=false;
+ if(typeof spectrum!=='function'||typeof activeTransitions!=='function')return;
+ const mode=v('fmMode').value,dev=Math.max(0,num('fmDev')),rate=Math.max(1,num('fmRate')),phase=num('fmPhase')*Math.PI/180,harm=num('fmHarm'),N=num('fmSamples'),tr=activeTransitions(),D=typeof effectiveD==='function'?effectiveD():2870,peak=Math.max(0,...tr.map(t=>t.weight||0)),strong=tr.filter(t=>Number.isFinite(t.f)&&t.weight>=peak*1e-3),near=strong.filter(t=>Math.abs(t.f-D)<Math.max(500,Math.abs(D)*.3)),freqs=(near.length?near:strong).map(t=>t.f),pad=Math.max(2,num('fmSpan')),lo=(freqs.length?Math.min(...freqs):D)-pad,hi=(freqs.length?Math.max(...freqs):D)+pad;
+ const base=[],avg=[],xs=[],ys=[],steps=420;
+ for(let i=0;i<=steps;i++){const f=lo+(hi-lo)*i/steps,p0=spectrum(f),d0=100-p0;let sum=0,x=0,y=0;
+ for(let j=0;j<N;j++){const a=2*Math.PI*j/N,g=wave(j/N),p=mode==='fm'?spectrum(f+dev*g):100-d0*(1+Math.min(100,dev)/100*g);sum+=p;x+=p*Math.cos(harm*a+phase);y+=p*Math.sin(harm*a+phase)}
+ base.push([f,p0]);avg.push([f,sum/N]);xs.push([f,2*x/N]);ys.push([f,2*y/N])}
+ const all=base.concat(avg).map(p=>p[1]),min=Math.min(...all),max=Math.max(...all),m=Math.max(.03,(max-min)*.12);
+ graph('fmPL',[{label:'Unmodulated',color:'#9cafc2',points:base},{label:'Modulated average',color:'#6de4c0',points:avg}],lo,hi,min-m,max+m,'Carrier frequency (MHz)','PL (%)');
+ const abs=Math.max(1e-5,...xs.concat(ys).map(p=>Math.abs(p[1])));
+ graph('fmXY',[{label:'X (in phase)',color:'#70b6ff',points:xs},{label:'Y (quadrature)',color:'#ffb86b',points:ys}],lo,hi,-abs*1.12,abs*1.12,'Carrier frequency (MHz)','Demodulated PL (%)');
+ const tpts=Array.from({length:301},(_,i)=>{let t=2*i/300;return[t,mode==='fm'?dev*wave(t):dev*wave(t)]});
+ graph('fmTime',[{label:mode==='fm'?'Frequency offset':'AM depth variation',color:'#d49bff',points:tpts}],0,2,-Math.max(.1,dev)*1.15,Math.max(.1,dev)*1.15,'Time (modulation cycles)',mode==='fm'?'Offset (MHz)':'Depth (%)');
+ v('fmInfo').textContent=(mode==='fm'?'FM peak deviation: '+dev+' MHz':'AM depth: '+dev+'%')+' · Rate: '+rate.toLocaleString()+' Hz · Period: '+(1e6/rate).toFixed(2)+' µs · '+N+' samples/cycle · '+(freqs.length?'Using observable transitions near the ODMR band':'No selected transitions')+'. Quasi-static steady-state model; rate-dependent dynamics not included.';
+}
+function schedule(){if(!scheduled){scheduled=true;requestAnimationFrame(renderFM)}}
+ids.forEach(id=>{v(id).addEventListener('input',schedule);v(id).addEventListener('change',schedule)});
+const obs=new MutationObserver(schedule);obs.observe(v('odmr-spectrum'),{subtree:true,attributes:true,childList:true,characterData:true});
+document.querySelectorAll('input,select,button').forEach(el=>{if(!ids.includes(el.id)){el.addEventListener('change',schedule);el.addEventListener('click',()=>setTimeout(schedule,0))}});
+window.addEventListener('resize',schedule);
+v('fmSave').addEventListener('click',()=>{const cvs=['fmPL','fmXY','fmTime'].map(id=>v(id));const w=Math.max(...cvs.map(c=>c.width)),h=cvs.reduce((a,c)=>a+c.height,0),out=document.createElement('canvas');out.width=w;out.height=h;const c=out.getContext('2d');let y=0;cvs.forEach(cv=>{c.drawImage(cv,0,y);y+=cv.height});const a=document.createElement('a');a.download='NV_FM_modulation_sweep.png';a.href=out.toDataURL('image/png');a.click()});
+setTimeout(schedule,300);
+})();
+
+(function(){
+const el=id=>document.getElementById(id), results=[];
+function choices(){const peaks=[];lines.forEach((line,axis)=>{const trs=line.transitions.filter(t=>Number.isFinite(t.f)&&t.weight>0).sort((a,b)=>b.weight-a.weight);const low=trs.filter(t=>t.f<effectiveD()).sort((a,b)=>b.weight-a.weight)[0],high=trs.filter(t=>t.f>=effectiveD()).sort((a,b)=>b.weight-a.weight)[0];for(const tr of [low,high])if(tr)peaks.push({f:tr.f,axis,weight:tr.weight})});return peaks.sort((a,b)=>a.f-b.f)}
+function populate(){const opts=choices(),select=el('slTransition'),prev=select.value;select.innerHTML='';opts.forEach((p,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent='#'+(i+1)+' · '+p.f.toFixed(2)+' MHz · NV '+(p.axis+1);select.append(o)});if(prev&&Number(prev)<opts.length)select.value=prev;return opts}
+function w(t){switch(el('fmWave').value){case 'triangle':return 2/Math.PI*Math.asin(Math.sin(2*Math.PI*t));case 'square':return t<.5?1:-1;case 'saw':return 2*t-1;default:return Math.sin(2*Math.PI*t)}}
+function signal(f,dev){const n=48,phase=Number(el('fmPhase').value)*Math.PI/180,harm=Number(el('fmHarm').value);let x=0;for(let j=0;j<n;j++){const a=2*Math.PI*j/n;x+=spectrum(f+dev*w(j/n))*Math.cos(harm*a+phase)}return 2*x/n}
+function draw(){const cv=el('slPlot'),dpr=window.devicePixelRatio||1,W=Math.max(340,cv.clientWidth),H=360;cv.width=W*dpr;cv.height=H*dpr;const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.fillStyle='#121d2b';c.fillRect(0,0,W,H);const l=80,r=W-22,t=28,b=H-48;if(!results.length)return;
+const x0=results[0].dev,x1=results[results.length-1].dev,valid=results.filter(p=>Number.isFinite(p.slope));if(!valid.length)return;
+let y0=Math.min(0,...valid.map(p=>p.slope)),y1=Math.max(0,...valid.map(p=>p.slope));if(y1-y0<1e-9){y0-=.01;y1+=.01}else{const pad=(y1-y0)*.1;y0-=pad;y1+=pad}
+const X=x=>l+(x-x0)/(x1-x0||1)*(r-l),Y=y=>b-(y-y0)/(y1-y0)*(b-t);
+c.font='12px system-ui';c.textAlign='right';for(let i=0;i<=5;i++){const y=y0+(y1-y0)*i/5;c.strokeStyle='#293c4d';c.beginPath();c.moveTo(l,Y(y));c.lineTo(r,Y(y));c.stroke();c.fillStyle='#b8cbd8';c.fillText(y.toFixed(4),l-8,Y(y)+4)}
+c.textAlign='center';for(let i=0;i<=5;i++)c.fillText((x0+(x1-x0)*i/5).toFixed(2),X(x0+(x1-x0)*i/5),b+20);
+c.fillText('FM deviation (MHz)',(l+r)/2,H-8);c.save();c.translate(15,(t+b)/2);c.rotate(-Math.PI/2);c.fillText('Zero-crossing slope (% / MHz)',0,0);c.restore();
+c.strokeStyle='#6de4c0';c.lineWidth=2;c.beginPath();let started=false;valid.forEach(p=>{if(!started){c.moveTo(X(p.dev),Y(p.slope));started=true}else c.lineTo(X(p.dev),Y(p.slope))});c.stroke();valid.forEach(p=>{c.fillStyle='#6de4c0';c.beginPath();c.arc(X(p.dev),Y(p.slope),2.5,0,Math.PI*2);c.fill()});
+}
+function run(){const peaks=populate(),index=Number(el('slTransition').value),p=peaks[index];if(!p){el('slStatus').textContent='No observable transition';return}const min=Math.max(0,Number(el('slMin').value)),max=Number(el('slMax').value),count=Math.max(5,Math.min(101,Math.floor(Number(el('slCount').value))));if(!(max>min)){el('slStatus').textContent='Maximum deviation must exceed minimum';return}
+results.length=0;const width=Math.max(.1,state.width),span=Math.max(3*width,max*1.4,3);for(let k=0;k<count;k++){const dev=min+(max-min)*k/(count-1),n=81,dx=2*span/n;let prevF=p.f-span,prev=signal(prevF,dev),crossings=[];
+for(let i=1;i<=n;i++){const f=p.f-span+2*span*i/n,val=signal(f,dev);if(prev*val<=0&&val!==prev){let z=prevF-prev*(f-prevF)/(val-prev),h=Math.max(.005,width*.015);const slope=(signal(z+h,dev)-signal(z-h,dev))/(2*h);crossings.push({f:z,slope})}prevF=f;prev=val}
+crossings.sort((a,b)=>Math.abs(a.f-p.f)-Math.abs(b.f-p.f));const hit=crossings[0];results.push({dev,zero:hit?hit.f:NaN,slope:hit?hit.slope:NaN})}
+draw();const valid=results.filter(r=>Number.isFinite(r.slope));if(valid.length){const best=valid.reduce((a,b)=>Math.abs(a.slope)>Math.abs(b.slope)?a:b);el('slStatus').textContent='Transition #'+(index+1)+' at '+p.f.toFixed(2)+' MHz · '+valid.length+'/'+count+' valid crossings · Maximum |slope| at deviation '+best.dev.toFixed(2)+' MHz: '+best.slope.toFixed(5)+' %/MHz.'}else el('slStatus').textContent='No sign-changing zero crossings found; try 1f, reference phase 0°, or a smaller deviation range.'}
+el('slRun').addEventListener('click',run);
+el('slCSV').addEventListener('click',()=>{if(!results.length)return;const csv='deviation_MHz,zero_crossing_MHz,slope_percent_per_MHz\n'+results.map(r=>[r.dev,r.zero,r.slope].join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='NV_FM_slope_vs_deviation.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});
+el('slPNG').addEventListener('click',()=>{const a=document.createElement('a');a.href=el('slPlot').toDataURL('image/png');a.download='NV_FM_slope_vs_deviation.png';a.click()});
+window.addEventListener('resize',draw);setTimeout(populate,500);
+})();
+
+</script><script data-goatcounter="https://nvsimulation.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<script>
+(function () {
+  const counter = document.getElementById('visitorCount');
+  fetch('https://nvsimulation.goatcounter.com/counter/TOTAL.json', {credentials: 'omit'})
+    .then(response => { if (!response.ok) throw new Error('Counter unavailable'); return response.json(); })
+    .then(data => { if (typeof data.count !== 'string' && typeof data.count !== 'number') throw new Error('Invalid counter'); counter.textContent = data.count; })
+    .catch(() => { counter.textContent = 'Currently unavailable'; });
+})();
+</script>
+<script>
+(function(){
+ const links=[...document.querySelectorAll('.jumpLink[href^="#"]')],targets=links.map(link=>document.getElementById(link.hash.slice(1)));
+ for(const link of links)link.addEventListener('click',()=>{const target=document.getElementById(link.hash.slice(1));if(target&&target.tagName==='DETAILS')target.open=true});
+ let queued=false;
+ function highlight(){queued=false;let active=0;const offset=window.innerWidth<=1100?115:45;targets.forEach((el,i)=>{if(el&&el.getBoundingClientRect().top<=offset)active=i});links.forEach((link,i)=>{if(i===active)link.setAttribute('aria-current','location');else link.removeAttribute('aria-current')})}
+ window.addEventListener('scroll',()=>{if(!queued){queued=true;requestAnimationFrame(highlight)}},{passive:true});
+ window.addEventListener('resize',highlight);highlight();
+})();
+</script>
+</body></html>
+
+
+
+
+
