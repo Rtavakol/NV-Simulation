@@ -32,7 +32,7 @@ html{scroll-behavior:smooth}main{margin-left:228px;margin-right:auto}main [id]{s
 <div class="bar"><h2>Microwave carrier sweep: unmodulated and cycle-averaged PL</h2></div><canvas id="fmPL" style="width:100%;height:290px;display:block" aria-label="FM-averaged PL sweep"></canvas>
 <div class="bar"><h2>Lock-in X and Y vs carrier frequency</h2></div><canvas id="fmXY" style="width:100%;height:290px;display:block" aria-label="Lock-in X and Y response"></canvas>
 <div class="bar"><h2>Instantaneous modulation waveform</h2></div><canvas id="fmTime" style="width:100%;height:190px;display:block" aria-label="Microwave modulation waveform"></canvas>
-<p class="note">The AM option is an illustrative contrast-scaling approximation, not a microwave-power-dependent spin-dynamics calculation. FM and AM use a quasi-static steady-state model; modulation-rate-dependent NV dynamics and instrument filtering are planned next.</p></section><section class="card spectrum" id="slope-studio"><h2>Zero-crossing slope optimization versus FM deviation</h2><p class="note">Select one of the eight strongest ODMR transitions (two per NV orientation), scan the FM deviation and measure the signed first-harmonic X slope at the nearest zero crossing. The signal is normalized PL percent, so the slope is %/MHz, not V/MHz.</p><div class="controls">
+<p class="note">The AM option is an illustrative contrast-scaling approximation, not a microwave-power-dependent spin-dynamics calculation. FM and AM use a quasi-static steady-state model; modulation-rate-dependent NV dynamics and instrument filtering are planned next.</p></section><section class="card spectrum" id="slope-studio"><h2>Zero-crossing slope optimization versus FM deviation</h2><p class="note">Select one of the eight strongest ODMR transitions (two per NV orientation), scan the FM deviation and measure the signed first-harmonic X slope at the nearest zero crossing. The signal is normalized PL percent, so the slope is %/MHz, not V/MHz. Time-series auto-start is disabled in this studio, and the 0° lock-in reference is aligned to sinusoidal FM.</p><div class="controls">
 <div><label>Transition</label><select id="slTransition" style="width:100%"></select></div>
 <div><label>Minimum FM deviation (MHz)</label><input id="slMin" type="number" value=".1" min="0" step=".1" style="width:100%"></div>
 <div><label>Maximum FM deviation (MHz)</label><input id="slMax" type="number" value="10" min=".1" step=".5" style="width:100%"></div>
@@ -639,7 +639,7 @@ window.MagLabStudio={
 };
 window.addEventListener('resize',request);render();
 // Start once after the first paint; completed traces remain available to explore.
-requestAnimationFrame(()=>{$('seriesDemo').click();startSeries()});
+// Modulation Studio: do not automatically start time-series field variations.
 
 (function(){
 const ids=['fmMode','fmWave','fmDev','fmRate','fmPhase','fmHarm','fmSamples','fmSpan'];
@@ -662,7 +662,7 @@ function renderFM(){
  const mode=v('fmMode').value,dev=Math.max(0,num('fmDev')),rate=Math.max(1,num('fmRate')),phase=num('fmPhase')*Math.PI/180,harm=num('fmHarm'),N=num('fmSamples'),tr=activeTransitions(),D=typeof effectiveD==='function'?effectiveD():2870,peak=Math.max(0,...tr.map(t=>t.weight||0)),strong=tr.filter(t=>Number.isFinite(t.f)&&t.weight>=peak*1e-3),near=strong.filter(t=>Math.abs(t.f-D)<Math.max(500,Math.abs(D)*.3)),freqs=(near.length?near:strong).map(t=>t.f),pad=Math.max(2,num('fmSpan')),lo=(freqs.length?Math.min(...freqs):D)-pad,hi=(freqs.length?Math.max(...freqs):D)+pad;
  const base=[],avg=[],xs=[],ys=[],steps=420;
  for(let i=0;i<=steps;i++){const f=lo+(hi-lo)*i/steps,p0=spectrum(f),d0=100-p0;let sum=0,x=0,y=0;
- for(let j=0;j<N;j++){const a=2*Math.PI*j/N,g=wave(j/N),p=mode==='fm'?spectrum(f+dev*g):100-d0*(1+Math.min(100,dev)/100*g);sum+=p;x+=p*Math.cos(harm*a+phase);y+=p*Math.sin(harm*a+phase)}
+ for(let j=0;j<N;j++){const a=2*Math.PI*j/N,g=wave(j/N),p=mode==='fm'?spectrum(f+dev*g):100-d0*(1+Math.min(100,dev)/100*g);sum+=p;x+=p*Math.sin(harm*a+phase);y+=p*Math.cos(harm*a+phase)}
  base.push([f,p0]);avg.push([f,sum/N]);xs.push([f,2*x/N]);ys.push([f,2*y/N])}
  const all=base.concat(avg).map(p=>p[1]),min=Math.min(...all),max=Math.max(...all),m=Math.max(.03,(max-min)*.12);
  graph('fmPL',[{label:'Unmodulated',color:'#9cafc2',points:base},{label:'Modulated average',color:'#6de4c0',points:avg}],lo,hi,min-m,max+m,'Carrier frequency (MHz)','PL (%)');
@@ -686,7 +686,7 @@ const el=id=>document.getElementById(id), results=[];
 function choices(){const peaks=[];lines.forEach((line,axis)=>{const trs=line.transitions.filter(t=>Number.isFinite(t.f)&&t.weight>0).sort((a,b)=>b.weight-a.weight);const low=trs.filter(t=>t.f<effectiveD()).sort((a,b)=>b.weight-a.weight)[0],high=trs.filter(t=>t.f>=effectiveD()).sort((a,b)=>b.weight-a.weight)[0];for(const tr of [low,high])if(tr)peaks.push({f:tr.f,axis,weight:tr.weight})});return peaks.sort((a,b)=>a.f-b.f)}
 function populate(){const opts=choices(),select=el('slTransition'),prev=select.value;select.innerHTML='';opts.forEach((p,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent='#'+(i+1)+' · '+p.f.toFixed(2)+' MHz · NV '+(p.axis+1);select.append(o)});if(prev&&Number(prev)<opts.length)select.value=prev;return opts}
 function w(t){switch(el('fmWave').value){case 'triangle':return 2/Math.PI*Math.asin(Math.sin(2*Math.PI*t));case 'square':return t<.5?1:-1;case 'saw':return 2*t-1;default:return Math.sin(2*Math.PI*t)}}
-function signal(f,dev){const n=48,phase=Number(el('fmPhase').value)*Math.PI/180,harm=Number(el('fmHarm').value);let x=0;for(let j=0;j<n;j++){const a=2*Math.PI*j/n;x+=spectrum(f+dev*w(j/n))*Math.cos(harm*a+phase)}return 2*x/n}
+function signal(f,dev){const n=64,phase=Number(el('fmPhase').value)*Math.PI/180,harm=Number(el('fmHarm').value);let x=0;for(let j=0;j<n;j++){const a=2*Math.PI*j/n;x+=spectrum(f+dev*w(j/n))*Math.sin(harm*a+phase)}return 2*x/n}
 function draw(){const cv=el('slPlot'),dpr=window.devicePixelRatio||1,W=Math.max(340,cv.clientWidth),H=360;cv.width=W*dpr;cv.height=H*dpr;const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.fillStyle='#121d2b';c.fillRect(0,0,W,H);const l=80,r=W-22,t=28,b=H-48;if(!results.length)return;
 const x0=results[0].dev,x1=results[results.length-1].dev,valid=results.filter(p=>Number.isFinite(p.slope));if(!valid.length)return;
 let y0=Math.min(0,...valid.map(p=>p.slope)),y1=Math.max(0,...valid.map(p=>p.slope));if(y1-y0<1e-9){y0-=.01;y1+=.01}else{const pad=(y1-y0)*.1;y0-=pad;y1+=pad}
@@ -697,8 +697,8 @@ c.fillText('FM deviation (MHz)',(l+r)/2,H-8);c.save();c.translate(15,(t+b)/2);c.
 c.strokeStyle='#6de4c0';c.lineWidth=2;c.beginPath();let started=false;valid.forEach(p=>{if(!started){c.moveTo(X(p.dev),Y(p.slope));started=true}else c.lineTo(X(p.dev),Y(p.slope))});c.stroke();valid.forEach(p=>{c.fillStyle='#6de4c0';c.beginPath();c.arc(X(p.dev),Y(p.slope),2.5,0,Math.PI*2);c.fill()});
 }
 function run(){const peaks=populate(),index=Number(el('slTransition').value),p=peaks[index];if(!p){el('slStatus').textContent='No observable transition';return}const min=Math.max(0,Number(el('slMin').value)),max=Number(el('slMax').value),count=Math.max(5,Math.min(101,Math.floor(Number(el('slCount').value))));if(!(max>min)){el('slStatus').textContent='Maximum deviation must exceed minimum';return}
-results.length=0;const width=Math.max(.1,state.width),span=Math.max(3*width,max*1.4,3);for(let k=0;k<count;k++){const dev=min+(max-min)*k/(count-1),n=81,dx=2*span/n;let prevF=p.f-span,prev=signal(prevF,dev),crossings=[];
-for(let i=1;i<=n;i++){const f=p.f-span+2*span*i/n,val=signal(f,dev);if(prev*val<=0&&val!==prev){let z=prevF-prev*(f-prevF)/(val-prev),h=Math.max(.005,width*.015);const slope=(signal(z+h,dev)-signal(z-h,dev))/(2*h);crossings.push({f:z,slope})}prevF=f;prev=val}
+results.length=0;const width=Math.max(.1,state.width),span=Math.max(3*width,max*1.4,3);for(let k=0;k<count;k++){const dev=min+(max-min)*k/(count-1),n=161;let prevF=p.f-span,prev=signal(prevF,dev),crossings=[];
+for(let i=1;i<=n;i++){const f=p.f-span+2*span*i/n,val=signal(f,dev);if(prev*val<0&&val!==prev){let z=prevF-prev*(f-prevF)/(val-prev),h=Math.max(.005,width*.015);const slope=(signal(z+h,dev)-signal(z-h,dev))/(2*h);crossings.push({f:z,slope})}prevF=f;prev=val}
 crossings.sort((a,b)=>Math.abs(a.f-p.f)-Math.abs(b.f-p.f));const hit=crossings[0];results.push({dev,zero:hit?hit.f:NaN,slope:hit?hit.slope:NaN})}
 draw();const valid=results.filter(r=>Number.isFinite(r.slope));if(valid.length){const best=valid.reduce((a,b)=>Math.abs(a.slope)>Math.abs(b.slope)?a:b);el('slStatus').textContent='Transition #'+(index+1)+' at '+p.f.toFixed(2)+' MHz · '+valid.length+'/'+count+' valid crossings · Maximum |slope| at deviation '+best.dev.toFixed(2)+' MHz: '+best.slope.toFixed(5)+' %/MHz.'}else el('slStatus').textContent='No sign-changing zero crossings found; try 1f, reference phase 0°, or a smaller deviation range.'}
 el('slRun').addEventListener('click',run);
