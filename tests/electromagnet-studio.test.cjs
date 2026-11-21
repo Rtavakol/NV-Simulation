@@ -13,6 +13,14 @@ const awg=run('emWinding(emCoilConfig(),8)');assert(Math.abs(awg.d-.25464)<.001)
 const ideal=run('emWinding({...emCoilConfig(),wireOD:.285,packing:1,coilLength:.285,coilThickness:.285,leads:0},1)');assert.equal(ideal.N,1);const radius=(70/2+.285/2)/1000;assert(Math.abs(ideal.K_mT_A-4*Math.PI*1e-7/(2*radius)*1000)<1e-10);
 const pp=run('emPseudo([[1,0,0],[0,2,0],[0,0,3],[1,1,1]])');assert.equal(pp.rank,3);const inp=[[1,0,0],[0,2,0],[0,0,3],[1,1,1]];for(let i=0;i<3;i++)for(let j=0;j<3;j++)assert(Math.abs(pp.P[i].reduce((s,x,k)=>s+x*inp[k][j],0)-(i===j?1:0))<1e-9);
 const pat=run('emPattern([{f:0,w:1}],{...c,fmdev:.01,linewidth:1.3,lintol:10})');assert(pat.half>.01&&pat.half<.3);assert(Math.abs(pat.left-pat.right)<1e-8);console.log('PASS AWG, discrete-loop field, Ohm law, temperature resistance, pseudoinverse identity, slope-defined linear interval',pat.half);
+const wc=run('({...emCoilConfig(),vmax:100,turnMode:"minimum"})');ctx.wc=wc;
+const minCoil=run('emWinding(wc,3)');const filled=run('emWinding({...wc,turnMode:"fill"},3)');assert(minCoil.N<filled.N);assert(minCoil.I<=minCoil.wireCurrentCap+1e-12);assert(Math.abs(minCoil.R-minCoil.wire*minCoil.ohmsPerM)<1e-10);ctx.nBefore=minCoil.N-1;
+const iBefore=run('3/1000/EM.windingCache.K[nBefore]');assert(iBefore>minCoil.wireCurrentCap);
+const cold=run('emWinding({...wc,copperTemp:20},3)');assert(Math.abs(minCoil.R/cold.R-(1+.00393*40))<1e-10);
+const fine=run('emWire(wc)'),thick=run('emWire({...wc,awg:28})');assert(thick.reference>fine.reference);assert(thick.ohmsPerM20<fine.ohmsPerM20);assert(Math.abs(fine.reference-Math.pow(fine.d/.0254,2)/700)<1e-12);
+assert.throws(()=>run('emWinding({...wc,wireOD:.01},3)'),/smaller/);
+console.log('PASS minimum turns, AWG-based current cap, previous-turn rejection, gauge and temperature resistance updates');
+
 console.time('search');await run('emSearch()');console.timeEnd('search');console.log(element('searchStatus').textContent);const r=run('EM.result');assert(r&&r.separation);console.log({mag:r.mag,capture:r.capture,linearIsolation:r.linearIsolation,drift:Math.max(...r.reserved),linear:Math.min(...r.patterns.map(p=>p.used)),condition:r.pseudo.condition,samples:r.samples,gap:Math.min(...r.gaps.map(g=>g.gap)),required:Math.max(...r.gaps.map(g=>g.required))});
 assert(r.gaps.every(g=>g.gap>=g.required));assert(r.pseudo.rank===3);assert(r.A.length===8);assert(r.samples>=81);
 // Zero dynamic/thermal range must pass linear capture.
