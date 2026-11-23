@@ -1,0 +1,4 @@
+const {lockSim}=require('../lock-in.js'),assert=require('assert');
+const base={duration:12,seed:42,amplitude:1,frequency:25,detune:0,phase:0,noise:0,drift:0,interference:0,interFrequency:50,tau:.5,step:false};
+function mean(p,key){let a=lockSim({...base,...p}).out.filter(v=>v.t>8);return a.reduce((s,v)=>s+v[key],0)/a.length}
+assert(Math.abs(mean({},'x')-1)<.002);assert(Math.abs(mean({phase:90},'y')+1)<.002);assert(Math.abs(mean({phase:90},'x'))<.002);assert(Math.abs(mean({phase:90},'r')-1)<.002);assert(mean({detune:2},'r')<.17);assert(Math.abs(mean({interference:2,interFrequency:25},'x')-3)<.004);assert(Math.abs(mean({step:true},'x')-.5)<.003);assert(Math.abs(mean({noise:15},'x')-1)<.35);assert.deepStrictEqual(lockSim(base),lockSim(base));console.log('PASS: amplitude calibration, phase/quadrature sign, phase-invariant magnitude, detuning rejection, coherent interference, step settling, seeded noise recovery.');
