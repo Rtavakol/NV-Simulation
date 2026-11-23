@@ -1,0 +1,4 @@
+/* Educational dual-phase lock-in: peak-amplitude convention, one-pole LPF. */
+function lockRng(seed){let s=seed>>>0;return()=>{s=(1664525*s+1013904223)>>>0;return (s+.5)/4294967296}}
+function lockSim(p){const fs=2000,dt=1/fs,N=Math.round(p.duration*fs),rnd=lockRng(p.seed),a=1-Math.exp(-dt/p.tau),out=[];let x=0,y=0;for(let i=0;i<N;i++){const t=i/fs,amp=p.step&&t>=p.duration/2?p.amplitude/2:p.amplitude,s=amp*Math.cos(2*Math.PI*p.frequency*t),ref=2*Math.PI*(p.frequency+p.detune)*t+p.phase*Math.PI/180,n=p.noise*Math.sqrt(-2*Math.log(rnd()))*Math.cos(2*Math.PI*rnd()),dr=p.drift*Math.sin(2*Math.PI*.25*t),inter=p.interference*Math.cos(2*Math.PI*p.interFrequency*t),v=s+n+dr+inter,mx=2*v*Math.cos(ref),my=-2*v*Math.sin(ref);x+=a*(mx-x);y+=a*(my-y);out.push({t,s,v,ref:Math.cos(ref),mx,x,y,r:Math.hypot(x,y),amp})}return {fs,out}}
+if(typeof module!=='undefined')module.exports={lockSim};
